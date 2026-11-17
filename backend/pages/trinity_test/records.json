@@ -1,0 +1,691 @@
+[
+  {
+    "task": "冒泡排序",
+    "seq": 1,
+    "llm_seconds": 136.0,
+    "truncated": false,
+    "html_path": "C:\\workspace\\huaweimadao\\pro4\\backend\\pages\\trinity_test\\冒泡排序_r1.html",
+    "html_lines": 452,
+    "verify": {
+      "ok": true,
+      "js_errors": [],
+      "missing_controls": [],
+      "verify_entry_exists": true,
+      "has_test_cases": true,
+      "test_case_results": [
+        {
+          "input": [
+            5,
+            3,
+            8,
+            1,
+            2
+          ],
+          "expected": [
+            1,
+            2,
+            3,
+            5,
+            8
+          ],
+          "actual": [
+            1,
+            2,
+            3,
+            5,
+            8
+          ],
+          "error": null,
+          "pass": true
+        },
+        {
+          "input": [
+            10,
+            -2,
+            7,
+            3
+          ],
+          "expected": [
+            -2,
+            3,
+            7,
+            10
+          ],
+          "actual": [
+            -2,
+            3,
+            7,
+            10
+          ],
+          "error": null,
+          "pass": true
+        },
+        {
+          "input": [],
+          "expected": [],
+          "actual": [],
+          "error": null,
+          "pass": true
+        },
+        {
+          "input": [
+            42
+          ],
+          "expected": [
+            42
+          ],
+          "actual": [
+            42
+          ],
+          "error": null,
+          "pass": true
+        }
+      ],
+      "timed_out": false,
+      "error_summary": "校验通过：无 JS 报错，控件齐全，自检入口可调用，断言全部通过"
+    },
+    "ok": true,
+    "seconds": 144.5
+  },
+  {
+    "task": "冒泡排序",
+    "seq": 2,
+    "llm_seconds": 271.2,
+    "truncated": true,
+    "ok": false,
+    "stage": "extract",
+    "error": "输出中找不到完整 HTML 文档"
+  },
+  {
+    "task": "Dijkstra",
+    "seq": 1,
+    "llm_seconds": 173.6,
+    "truncated": false,
+    "html_path": "C:\\workspace\\huaweimadao\\pro4\\backend\\pages\\trinity_test\\Dijkstra_r1.html",
+    "html_lines": 586,
+    "verify": {
+      "ok": false,
+      "js_errors": [],
+      "missing_controls": [],
+      "verify_entry_exists": true,
+      "has_test_cases": true,
+      "test_case_results": [
+        {
+          "input": [
+            [
+              "A",
+              "B",
+              4
+            ],
+            [
+              "A",
+              "C",
+              2
+            ],
+            [
+              "B",
+              "C",
+              1
+            ],
+            [
+              "B",
+              "D",
+              5
+            ],
+            [
+              "C",
+              "D",
+              8
+            ],
+            [
+              "C",
+              "E",
+              10
+            ],
+            [
+              "D",
+              "F",
+              6
+            ],
+            [
+              "E",
+              "F",
+              2
+            ]
+          ],
+          "expected": {
+            "A": 0,
+            "B": 3,
+            "C": 2,
+            "D": 8,
+            "E": 12,
+            "F": 14
+          },
+          "actual": {
+            "A": 0,
+            "B": 3,
+            "C": 2,
+            "D": 8,
+            "E": 12,
+            "F": 14
+          },
+          "error": null,
+          "pass": true
+        },
+        {
+          "input": [
+            [
+              "A",
+              "B",
+              1
+            ],
+            [
+              "B",
+              "C",
+              2
+            ],
+            [
+              "A",
+              "C",
+              10
+            ],
+            [
+              "C",
+              "D",
+              1
+            ]
+          ],
+          "expected": {
+            "A": 0,
+            "B": 1,
+            "C": 3,
+            "D": 4
+          },
+          "actual": {
+            "A": 0,
+            "B": 1,
+            "C": 3,
+            "D": 4,
+            "E": Infinity,
+            "F": Infinity
+          },
+          "error": null,
+          "pass": false
+        },
+        {
+          "input": [
+            [
+              "A",
+              "B",
+              5
+            ]
+          ],
+          "expected": {
+            "A": 0,
+            "B": 5,
+            "C": Infinity,
+            "D": Infinity,
+            "E": Infinity,
+            "F": Infinity
+          },
+          "actual": {
+            "A": 0,
+            "B": 5,
+            "C": Infinity,
+            "D": Infinity,
+            "E": Infinity,
+            "F": Infinity
+          },
+          "error": null,
+          "pass": true
+        }
+      ],
+      "timed_out": false,
+      "error_summary": "自测断言未通过（1/3 条失败）：输入 [['A', 'B', 1], ['B', 'C', 2], ['A', 'C', 10], ['C', 'D', 1]] 期望 {'A': 0, 'B': 1, 'C': 3, 'D': 4} 实际 {'A': 0, 'B': 1, 'C': 3, 'D': 4, 'E': inf, 'F': inf}"
+    },
+    "ok": false,
+    "seconds": 182.8
+  },
+  {
+    "task": "Dijkstra",
+    "seq": 2,
+    "llm_seconds": 169.0,
+    "truncated": false,
+    "html_path": "C:\\workspace\\huaweimadao\\pro4\\backend\\pages\\trinity_test\\Dijkstra_r2.html",
+    "html_lines": 580,
+    "verify": {
+      "ok": true,
+      "js_errors": [],
+      "missing_controls": [],
+      "verify_entry_exists": true,
+      "has_test_cases": true,
+      "test_case_results": [
+        {
+          "input": [
+            [
+              0,
+              8,
+              8,
+              0,
+              0,
+              0
+            ],
+            [
+              8,
+              0,
+              9,
+              7,
+              0,
+              0
+            ],
+            [
+              8,
+              9,
+              0,
+              0,
+              6,
+              0
+            ],
+            [
+              0,
+              7,
+              0,
+              0,
+              7,
+              6
+            ],
+            [
+              0,
+              0,
+              6,
+              7,
+              0,
+              1
+            ],
+            [
+              0,
+              0,
+              0,
+              6,
+              1,
+              0
+            ]
+          ],
+          "expected": {
+            "distances": [
+              0,
+              8,
+              8,
+              15,
+              14,
+              15
+            ],
+            "parent": [
+              -1,
+              0,
+              0,
+              1,
+              2,
+              4
+            ]
+          },
+          "actual": {
+            "distances": [
+              0,
+              8,
+              8,
+              15,
+              14,
+              15
+            ],
+            "parent": [
+              -1,
+              0,
+              0,
+              1,
+              2,
+              4
+            ]
+          },
+          "error": null,
+          "pass": true
+        },
+        {
+          "input": [
+            [
+              0,
+              5,
+              6,
+              0,
+              0,
+              0
+            ],
+            [
+              5,
+              0,
+              2,
+              3,
+              0,
+              0
+            ],
+            [
+              6,
+              2,
+              0,
+              0,
+              4,
+              0
+            ],
+            [
+              0,
+              3,
+              0,
+              0,
+              5,
+              1
+            ],
+            [
+              0,
+              0,
+              4,
+              5,
+              0,
+              8
+            ],
+            [
+              0,
+              0,
+              0,
+              1,
+              8,
+              0
+            ]
+          ],
+          "expected": {
+            "distances": [
+              0,
+              5,
+              6,
+              8,
+              10,
+              9
+            ],
+            "parent": [
+              -1,
+              0,
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          "actual": {
+            "distances": [
+              0,
+              5,
+              6,
+              8,
+              10,
+              9
+            ],
+            "parent": [
+              -1,
+              0,
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          "error": null,
+          "pass": true
+        },
+        {
+          "input": [
+            [
+              0
+            ]
+          ],
+          "expected": {
+            "distances": [
+              0
+            ],
+            "parent": [
+              -1
+            ]
+          },
+          "actual": {
+            "distances": [
+              0
+            ],
+            "parent": [
+              -1
+            ]
+          },
+          "error": null,
+          "pass": true
+        }
+      ],
+      "timed_out": false,
+      "error_summary": "校验通过：无 JS 报错，控件齐全，自检入口可调用，断言全部通过"
+    },
+    "ok": true,
+    "seconds": 172.6
+  },
+  {
+    "task": "二分查找",
+    "seq": 1,
+    "llm_seconds": 135.4,
+    "truncated": false,
+    "html_path": "C:\\workspace\\huaweimadao\\pro4\\backend\\pages\\trinity_test\\二分查找_r1.html",
+    "html_lines": 498,
+    "verify": {
+      "ok": false,
+      "js_errors": [
+        "pageerror: valSpanapsed is not defined"
+      ],
+      "missing_controls": [],
+      "verify_entry_exists": true,
+      "has_test_cases": true,
+      "test_case_results": [
+        {
+          "input": {
+            "arr": [
+              1,
+              3,
+              5,
+              7,
+              9,
+              11
+            ],
+            "target": 7
+          },
+          "expected": {
+            "found": true,
+            "index": 3
+          },
+          "actual": {
+            "found": true,
+            "index": 3
+          },
+          "error": null,
+          "pass": true
+        },
+        {
+          "input": {
+            "arr": [
+              2,
+              4,
+              6,
+              8,
+              10,
+              12,
+              14
+            ],
+            "target": 13
+          },
+          "expected": {
+            "found": false,
+            "index": -1
+          },
+          "actual": {
+            "found": false,
+            "index": -1
+          },
+          "error": null,
+          "pass": true
+        },
+        {
+          "input": {
+            "arr": [
+              5
+            ],
+            "target": 5
+          },
+          "expected": {
+            "found": true,
+            "index": 0
+          },
+          "actual": {
+            "found": true,
+            "index": 0
+          },
+          "error": null,
+          "pass": true
+        },
+        {
+          "input": {
+            "arr": [],
+            "target": 1
+          },
+          "expected": {
+            "found": false,
+            "index": -1
+          },
+          "actual": {
+            "found": false,
+            "index": -1
+          },
+          "error": null,
+          "pass": true
+        },
+        {
+          "input": {
+            "arr": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "target": 1
+          },
+          "expected": {
+            "found": true,
+            "index": 0
+          },
+          "actual": {
+            "found": true,
+            "index": 0
+          },
+          "error": null,
+          "pass": true
+        }
+      ],
+      "timed_out": false,
+      "error_summary": "JS 报错：pageerror: valSpanapsed is not defined"
+    },
+    "ok": false,
+    "seconds": 138.8
+  },
+  {
+    "task": "二分查找",
+    "seq": 2,
+    "llm_seconds": 131.6,
+    "truncated": false,
+    "html_path": "C:\\workspace\\huaweimadao\\pro4\\backend\\pages\\trinity_test\\二分查找_r2.html",
+    "html_lines": 478,
+    "verify": {
+      "ok": false,
+      "js_errors": [],
+      "missing_controls": [],
+      "verify_entry_exists": true,
+      "has_test_cases": true,
+      "test_case_results": [
+        {
+          "input": {
+            "arr": [
+              1,
+              3,
+              5,
+              7,
+              9
+            ],
+            "target": 5
+          },
+          "expected": {
+            "found": true,
+            "index": 2,
+            "steps": 1
+          },
+          "actual": {
+            "found": true,
+            "index": 2,
+            "steps": 1
+          },
+          "error": null,
+          "pass": true
+        },
+        {
+          "input": {
+            "arr": [
+              2,
+              4,
+              6,
+              8,
+              10,
+              12
+            ],
+            "target": 8
+          },
+          "expected": {
+            "found": true,
+            "index": 3,
+            "steps": 1
+          },
+          "actual": {
+            "found": true,
+            "index": 3,
+            "steps": 3
+          },
+          "error": null,
+          "pass": false
+        },
+        {
+          "input": {
+            "arr": [
+              5
+            ],
+            "target": 3
+          },
+          "expected": {
+            "found": false,
+            "index": -1,
+            "steps": 1
+          },
+          "actual": {
+            "found": false,
+            "index": -1,
+            "steps": 1
+          },
+          "error": null,
+          "pass": true
+        }
+      ],
+      "timed_out": false,
+      "error_summary": "自测断言未通过（1/3 条失败）：输入 {'arr': [2, 4, 6, 8, 10, 12], 'target': 8} 期望 {'found': True, 'index': 3, 'steps': 1} 实际 {'found': True, 'index': 3, 'steps': 3}"
+    },
+    "ok": false,
+    "seconds": 134.7
+  }
+]

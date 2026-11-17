@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>样品 C · 清新教育风 — AlgoAgent 前端重构</title>
+<style>
+/* ============ 样品 C：清新教育风 ============ */
+/* 关键词：暖白底 / 青绿主色 / 超大圆角 / 明快彩色点缀 / 圆润友好 */
+:root {
+  --brand: #10B981;
+  --brand-deep: #0A9B6E;
+  --brand-soft: #E6F7F0;
+  --sun: #FBBF24;
+  --sky: #38BDF8;
+  --coral: #FB7185;
+  --grape: #A78BFA;
+  --bg: #FAF9F5;
+  --card: #FFFFFF;
+  --line: #EDEAE0;
+  --text-1: #2D3748;
+  --text-2: #718096;
+  --text-3: #A0AEC0;
+  --ok: #10B981;
+  --warn: #F59E0B;
+  --err: #F56565;
+  --shadow-sm: 0 2px 6px rgba(45,55,72,.05);
+  --shadow-md: 0 6px 20px rgba(45,55,72,.08);
+  --shadow-lg: 0 16px 40px rgba(45,55,72,.12);
+  --radius: 22px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Nunito","PingFang SC","Microsoft YaHei",system-ui,sans-serif; background:#F3F1E9; color:var(--text-1); font-size:14px; line-height:1.65; }
+
+.doc-bar { background:#2D3748; color:#fff; padding:14px 28px; position:sticky; top:0; z-index:99; display:flex; align-items:center; border-radius:0 0 18px 18px;}
+.doc-bar h1 { font-size:16px; display:inline; margin-right:16px;}
+.doc-bar .tag { display:inline-block; background:var(--brand); padding:2px 12px; border-radius:20px; font-size:12px; margin-right:16px; font-weight:700;}
+.doc-bar a { color:#B8E5D5; text-decoration:none; margin:0 10px; font-size:13px;}
+.doc-bar a:hover { color:#fff; }
+.doc-bar .meta { margin-left:auto; color:#A0AEC0; font-size:12px;}
+section { padding:48px 28px 64px; }
+section.alt { background:var(--bg); }
+.sec-title { text-align:center; margin-bottom:28px;}
+.sec-title h2 { font-size:18px; }
+.sec-title p { color:var(--text-3); font-size:13px; margin-top:4px;}
+.frame { width:1200px; max-width:96vw; margin:0 auto; border-radius:26px; overflow:hidden; box-shadow:var(--shadow-lg); border:1.5px solid var(--line); background:var(--card);}
+
+/* ============ 1. 登录页 ============ */
+.login-shot { height:560px; position:relative; display:flex; align-items:center; justify-content:center; background:
+  radial-gradient(500px 300px at 10% 15%, rgba(16,185,129,.10), transparent 60%),
+  radial-gradient(500px 300px at 92% 85%, rgba(251,191,36,.14), transparent 60%),
+  radial-gradient(400px 260px at 80% 10%, rgba(56,189,248,.10), transparent 60%),
+  var(--bg);}
+.blob { position:absolute; border-radius:50%; filter:blur(2px); opacity:.55;}
+.blob.b1 { width:120px; height:120px; background:rgba(16,185,129,.16); top:60px; left:80px;}
+.blob.b2 { width:80px; height:80px; background:rgba(251,191,36,.22); bottom:80px; right:100px;}
+.blob.b3 { width:56px; height:56px; background:rgba(56,189,248,.2); top:110px; right:180px;}
+.login-card { width:410px; background:var(--card); border-radius:26px; box-shadow:var(--shadow-lg); border:1.5px solid var(--line); padding:38px 42px 32px; position:relative;}
+.login-logo { width:56px; height:56px; border-radius:19px; background:var(--brand); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:25px; box-shadow:0 8px 20px rgba(16,185,129,.35); margin-bottom:16px;}
+.login-card h3 { font-size:23px; letter-spacing:.4px;}
+.login-card .sub { color:var(--text-2); font-size:13px; margin:6px 0 24px;}
+.tab-row { display:flex; background:#F4F2EB; border-radius:15px; padding:5px; margin-bottom:22px;}
+.tab-row .tab { flex:1; text-align:center; padding:9px 0; font-size:13px; border-radius:11px; color:var(--text-2); font-weight:700;}
+.tab-row .tab.on { background:var(--card); color:var(--brand-deep); box-shadow:var(--shadow-sm);}
+.field { margin-bottom:15px;}
+.field label { display:block; font-size:12.5px; color:var(--text-2); margin-bottom:6px; font-weight:700;}
+.field .inp { width:100%; padding:12px 16px; border:1.5px solid var(--line); border-radius:14px; font-size:14px; color:var(--text-3); background:#FCFBF7;}
+.field .inp.focus { border-color:var(--brand); color:var(--text-1); box-shadow:0 0 0 4px rgba(16,185,129,.12);}
+.btn-brand { width:100%; padding:13px; border:none; border-radius:14px; background:var(--brand); color:#fff; font-size:15px; font-weight:800; cursor:pointer; box-shadow:0 8px 20px rgba(16,185,129,.35); margin-top:8px;}
+.btn-brand:hover { background:var(--brand-deep);}
+.login-hint { text-align:center; color:var(--text-3); font-size:12px; margin-top:16px;}
+
+/* ============ 2. 工作台 ============ */
+.app-shot { display:flex; flex-direction:column; height:730px;}
+.app-header { height:62px; background:var(--card); border-bottom:1.5px solid var(--line); display:flex; align-items:center; padding:0 24px; gap:26px; flex-shrink:0;}
+.brand { display:flex; align-items:center; gap:11px;}
+.brand .logo { width:38px; height:38px; border-radius:13px; background:var(--brand); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:17px; box-shadow:0 4px 12px rgba(16,185,129,.3);}
+.brand b { font-size:17px;}
+.brand span { color:var(--text-3); font-size:12px; display:block; margin-top:-3px;}
+.nav { display:flex; gap:6px;}
+.nav a { padding:8px 18px; border-radius:13px; color:var(--text-2); text-decoration:none; font-size:13.5px; font-weight:700;}
+.nav a.on { background:var(--brand-soft); color:var(--brand-deep);}
+.nav a:hover { background:#F4F2EB;}
+.spacer { flex:1;}
+.user-chip { display:flex; align-items:center; gap:10px; padding:6px 14px 6px 7px; border-radius:30px; cursor:pointer; background:#F4F2EB;}
+.avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, var(--sun), var(--coral)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px;}
+.user-chip .name { font-size:13.5px; font-weight:800; line-height:1.15;}
+.user-chip .role { font-size:11px; color:var(--brand-deep); line-height:1.1; font-weight:700;}
+.chev { color:var(--text-3); font-size:11px;}
+
+.app-body { flex:1; display:flex; min-height:0; background:var(--bg);}
+
+/* 左：对话 */
+.chat-pane { width:425px; border-right:1.5px solid var(--line); display:flex; flex-direction:column; background:var(--card); flex-shrink:0;}
+.chat-scroll { flex:1; overflow:hidden; padding:22px 20px 12px;}
+.msg { display:flex; gap:10px; margin-bottom:20px; align-items:flex-start;}
+.msg .av { width:32px; height:32px; border-radius:12px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:14px;}
+.msg.ai .av { background:var(--brand); color:#fff;}
+.msg.me { flex-direction:row-reverse;}
+.msg.me .av { background:var(--sun); color:#fff;}
+.bubble { max-width:82%; padding:11px 15px; border-radius:18px; font-size:13.5px;}
+.msg.ai .bubble { background:#FCFBF7; border:1.5px solid var(--line); border-top-left-radius:5px;}
+.msg.me .bubble { background:var(--brand-soft); border:1.5px solid rgba(16,185,129,.3); border-top-right-radius:5px; color:var(--brand-deep); font-weight:600;}
+.clarify-card { background:#FCFBF7; border:1.5px solid var(--line); border-top-left-radius:5px; border-radius:18px; padding:13px 15px; max-width:86%;}
+.clarify-card .head { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--brand-deep); font-weight:800; margin-bottom:9px;}
+.clarify-card ol { margin-left:18px; font-size:13px;}
+.clarify-card ol li { margin:4px 0;}
+.clarify-card ol li::marker { color:var(--sun); font-weight:800;}
+.clarify-card .ans { margin-top:10px; border-top:1.5px dashed var(--line); padding-top:9px; font-size:12.5px; color:var(--text-2);}
+.clarify-card .ans b { color:var(--ok); }
+.gen-card { max-width:86%; background:#FCFBF7; border:1.5px solid var(--line); border-top-left-radius:5px; border-radius:18px; padding:13px 15px;}
+.gen-card .t { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:800;}
+.pill { font-size:11px; padding:3px 10px; border-radius:20px; font-weight:800;}
+.pill.repair { background:#FEF3DC; color:#D97706;}
+.gen-card .prog { margin-top:9px; display:flex; align-items:center; gap:9px; font-size:12.5px; color:var(--text-2);}
+.spinner { width:15px; height:15px; border:2.5px solid rgba(16,185,129,.2); border-top-color:var(--brand); border-radius:50%; animation:spin 1s linear infinite;}
+@keyframes spin { to { transform:rotate(360deg);} }
+.bar { height:8px; background:#F0EDE3; border-radius:8px; overflow:hidden; flex:1;}
+.bar i { display:block; height:100%; width:64%; background:var(--brand); border-radius:8px;}
+.done-card { max-width:86%; background:var(--brand-soft); border:1.5px solid rgba(16,185,129,.4); border-top-left-radius:5px; border-radius:18px; padding:12px 15px; color:var(--brand-deep); font-size:13.5px; font-weight:800; display:flex; align-items:center; gap:8px;}
+
+.chat-input { border-top:1.5px solid var(--line); padding:15px 17px 17px; background:var(--card);}
+.input-box { border:1.5px solid var(--line); border-radius:18px; padding:11px 13px 9px; background:#FCFBF7;}
+.input-box .ph { color:var(--text-3); font-size:13px; min-height:38px;}
+.input-foot { display:flex; justify-content:space-between; align-items:center; margin-top:6px;}
+.tip { font-size:11px; color:var(--text-3);}
+.send-btn { border:none; background:var(--brand); color:#fff; padding:9px 20px; border-radius:13px; font-size:13px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(16,185,129,.3);}
+
+/* 右：舞台 */
+.stage-pane { flex:1; display:flex; flex-direction:column; min-width:0;}
+.stage-steps { padding:18px 28px 6px; flex-shrink:0;}
+.steps { display:flex; align-items:flex-start;}
+.step { flex:1; text-align:center; position:relative;}
+.step .dot { width:34px; height:34px; border-radius:14px; background:var(--card); border:2px solid var(--line); color:var(--text-3); display:flex; align-items:center; justify-content:center; margin:0 auto 7px; font-size:14px; position:relative; z-index:2;}
+.step .lbl { font-size:12.5px; color:var(--text-3); font-weight:700;}
+.step .sub { font-size:11px; color:var(--text-3); margin-top:1px;}
+.step.done .dot { background:var(--brand-soft); border-color:var(--brand); color:var(--brand-deep);}
+.step.done .lbl { color:var(--text-1);}
+.step.cur .dot { background:var(--sun); border-color:var(--sun); color:#fff; box-shadow:0 4px 14px rgba(251,191,36,.45); transform:scale(1.08);}
+.step.cur .lbl { color:#D97706; font-weight:800;}
+.step.cur .sub { color:#D97706;}
+.step:not(:last-child)::after { content:""; position:absolute; top:17px; left:calc(50% + 22px); width:calc(100% - 44px); height:2.5px; background:var(--line); border-radius:3px; z-index:1;}
+.step.done:not(:last-child)::after { background:var(--brand);}
+.badge-attempt { position:absolute; top:-7px; right:calc(50% - 30px); background:var(--coral); color:#fff; font-size:10px; padding:2px 8px; border-radius:12px; font-weight:800; z-index:3; box-shadow:0 3px 8px rgba(251,113,133,.4);}
+
+.stage-wrap { flex:1; margin:12px 28px 26px; border-radius:24px; background:var(--card); border:1.5px solid var(--line); box-shadow:var(--shadow-md); display:flex; flex-direction:column; overflow:hidden; min-height:0;}
+.stage-toolbar { height:56px; border-bottom:1.5px solid var(--line); display:flex; align-items:center; padding:0 20px; gap:10px; flex-shrink:0;}
+.stage-toolbar .title { font-size:14.5px; font-weight:800;}
+.stage-toolbar .title small { display:block; font-size:11.5px; color:var(--text-3); font-weight:600; margin-top:-2px;}
+.stage-toolbar .grow { flex:1;}
+.tbtn { border:1.5px solid var(--line); background:var(--card); color:var(--text-1); padding:8px 15px; border-radius:13px; font-size:12.5px; cursor:pointer; font-weight:700;}
+.tbtn:hover { background:#F4F2EB;}
+.tbtn.primary { background:var(--brand); color:#fff; border:none; font-weight:800; box-shadow:0 4px 14px rgba(16,185,129,.35);}
+.tbtn.ghost { border:none; background:transparent; color:var(--text-2);}
+
+/* 假动画：糖果色柱状图 */
+.viz { flex:1; display:flex; align-items:flex-end; justify-content:center; gap:15px; padding:32px 44px 16px; min-height:0;}
+.col { width:46px; border-radius:12px 12px 5px 5px; background:#E4E0D2; position:relative;}
+.col .v { color:#A0AEC0; font-size:11.5px; margin-top:-22px; font-weight:800; text-align:center; width:100%; position:absolute;}
+.col.hi { background:var(--brand); box-shadow:0 6px 16px rgba(16,185,129,.35);}
+.col.hi .v { color:var(--brand-deep);}
+.col.prev { background:var(--sun); box-shadow:0 5px 12px rgba(251,191,36,.35);}
+.col.prev .v { color:#B45309;}
+.viz-note { text-align:center; color:var(--text-2); font-size:12.5px; padding-bottom:18px; font-weight:600;}
+.viz-note b { color:var(--brand-deep);}
+.ctrl-row { display:flex; gap:10px; justify-content:center; padding:0 22px 22px;}
+.cbtn { padding:9px 20px; border-radius:13px; border:2px solid var(--line); background:var(--card); font-size:12.5px; color:var(--text-2); font-weight:800; cursor:pointer;}
+.cbtn.main { border-color:var(--brand); color:var(--brand-deep); background:var(--brand-soft);}
+
+/* ============ 3. 我的作品 ============ */
+.works-shot { min-height:560px; display:flex; flex-direction:column;}
+.works-head { padding:28px 34px 6px;}
+.works-head h3 { font-size:20px;}
+.works-head p { color:var(--text-2); font-size:13px; margin-top:4px;}
+.works-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; padding:22px 34px 34px;}
+.work-card { background:var(--card); border:1.5px solid var(--line); border-radius:22px; padding:20px; transition:.25s;}
+.work-card:hover { transform:translateY(-5px); box-shadow:var(--shadow-lg); border-color:rgba(16,185,129,.35);}
+.wtag { font-size:11px; padding:4px 12px; border-radius:20px; font-weight:800;}
+.wtag.ok { background:var(--brand-soft); color:var(--brand-deep);}
+.wtag.fail { background:#FDECEC; color:var(--err);}
+.work-card h4 { font-size:14.5px; line-height:1.5; min-height:44px; margin:11px 0 0;}
+.wmeta { color:var(--text-3); font-size:12px; margin:9px 0 15px; display:flex; gap:12px;}
+.wacts { display:flex; gap:9px;}
+.wacts .tbtn { flex:1; text-align:center;}
+.thumb { height:96px; border-radius:16px; margin-bottom:13px; background:#F4F2EB; display:flex; align-items:flex-end; justify-content:center; gap:8px; padding:14px 22px;}
+.thumb i { width:13px; border-radius:6px 6px 3px 3px; background:#DDD8C6;}
+.thumb i:nth-child(2) { background:var(--brand);}
+.thumb i:nth-child(5) { background:var(--sun);}
+.thumb i:nth-child(4) { background:var(--sky);}
+
+/* ============ 4. 分享弹窗 ============ */
+.share-shot { height:560px; position:relative; display:flex; align-items:center; justify-content:center; background:
+  radial-gradient(500px 300px at 85% 20%, rgba(251,191,36,.12), transparent 60%), var(--bg);}
+.overlay { position:absolute; inset:0; background:rgba(45,55,72,.4);}
+.share-dialog { position:relative; width:450px; background:var(--card); border:1.5px solid var(--line); border-radius:26px; box-shadow:var(--shadow-lg); padding:28px 30px 26px;}
+.share-dialog h3 { font-size:18px; display:flex; align-items:center; gap:9px;}
+.share-dialog .desc { color:var(--text-2); font-size:12.5px; margin:6px 0 20px;}
+.validity-row { display:flex; gap:9px; margin-bottom:20px;}
+.vopt { flex:1; text-align:center; padding:11px 0; border:2px solid var(--line); border-radius:15px; font-size:13px; color:var(--text-2); font-weight:800; cursor:pointer;}
+.vopt.on { border-color:var(--brand); color:var(--brand-deep); background:var(--brand-soft);}
+.share-result { display:flex; flex-direction:column; align-items:center; gap:15px;}
+.qr { width:172px; height:172px; border-radius:20px; border:2px solid var(--line); padding:13px; background:#fff;
+  background-image:linear-gradient(#2D3748 9px, transparent 9px),linear-gradient(90deg, #2D3748 9px, transparent 9px);
+  background-size:35px 35px; background-position:-9px -9px; box-shadow:var(--shadow-sm);}
+.url-row { width:100%; display:flex; border:2px solid var(--line); border-radius:15px; overflow:hidden;}
+.url-row .u { flex:1; padding:11px 15px; font-size:12.5px; color:var(--text-2); background:#FCFBF7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.url-row .cp { border:none; background:var(--brand); color:#fff; padding:0 22px; font-size:12.5px; font-weight:800; cursor:pointer;}
+.share-note { font-size:11.5px; color:var(--text-3); text-align:center;}
+
+.footer-note { text-align:center; color:var(--text-3); font-size:12px; padding:26px 0 34px; background:#F3F1E9;}
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <span class="tag">样品 C</span><h1>清新教育风</h1>
+  <a href="#login">登录页</a><a href="#work">工作台</a><a href="#works">我的作品</a><a href="#share">分享弹窗</a>
+  <span class="meta">暖白底 · 青绿主色 · 超大圆角 · 糖果色点缀 · 教师工具人设</span>
+</div>
+
+<!-- 1. 登录页 -->
+<section id="login">
+  <div class="sec-title"><h2>登录 / 注册页</h2><p>暖白底 + 彩色气泡点缀 + 超大圆角卡片</p></div>
+  <div class="frame login-shot">
+    <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+    <div class="login-card">
+      <div class="login-logo">◆</div>
+      <h3>AlgoAgent</h3>
+      <div class="sub">教师的教学智能体 · 算法可视化页面生成</div>
+      <div class="tab-row"><div class="tab on">登 录</div><div class="tab">注册（即可用）</div></div>
+      <div class="field"><label>用户名</label><div class="inp focus">teacher01</div></div>
+      <div class="field"><label>密码</label><div class="inp">••••••••••</div></div>
+      <button class="btn-brand">登 录</button>
+      <div class="login-hint">注册即可生成与管理，不设身份门槛</div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. 工作台 -->
+<section id="work" class="alt">
+  <div class="sec-title"><h2>教师工作台（核心界面）</h2><p>左对话 · 右舞台 · 方形步骤节点糖果色流转 · 分享在作品工具栏</p></div>
+  <div class="frame app-shot">
+    <div class="app-header">
+      <div class="brand"><div class="logo">◆</div><div><b>AlgoAgent</b><span>算法教学智能体</span></div></div>
+      <nav class="nav"><a class="on">💬 备课对话</a><a>🗂 我的作品</a></nav>
+      <div class="spacer"></div>
+      <div class="user-chip"><div class="avatar">张</div><div><div class="name">张老师</div><div class="role">管理员</div></div><span class="chev">▾</span></div>
+    </div>
+    <div class="app-body">
+      <div class="chat-pane">
+        <div class="chat-scroll">
+          <div class="msg me"><div class="av">张</div><div class="bubble">帮我生成一个冒泡排序的教学动画</div></div>
+          <div class="msg ai"><div class="av">◆</div>
+            <div class="clarify-card">
+              <div class="head">✦ 开始生成前，我想先确认几点</div>
+              <ol><li>面向哪个学段的学生？</li><li>演示形式希望哪种？</li><li>数组默认多少个元素？</li></ol>
+              <div class="ans">张老师：大二专业课 · 并排对比 · 8 个元素 <b>✓</b></div>
+            </div>
+          </div>
+          <div class="msg ai"><div class="av">◆</div>
+            <div class="gen-card">
+              <div class="t">第 2/3 次生成 <span class="pill repair">⟳ 自修复中</span></div>
+              <div class="prog"><div class="spinner"></div><div class="bar"><i></i></div><span>已接收 8.3 KB · 102s</span></div>
+            </div>
+          </div>
+          <div class="msg ai"><div class="av">◆</div><div class="done-card">✓ 校验通过，页面已在右侧展示（2 次尝试 · 218s）</div></div>
+        </div>
+        <div class="chat-input">
+          <div class="input-box">
+            <div class="ph">描述教学任务，如：为大二生成 Dijkstra 教学页面，突出松弛操作…</div>
+            <div class="input-foot"><span class="tip">Enter 发送</span><button class="send-btn">发送任务</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="stage-pane">
+        <div class="stage-steps">
+          <div class="steps">
+            <div class="step done"><div class="dot">✓</div><div class="lbl">澄清</div></div>
+            <div class="step done"><div class="dot">✓</div><div class="lbl">生成</div></div>
+            <div class="step done"><div class="dot">✓</div><div class="lbl">验证</div></div>
+            <div class="step cur"><div class="dot">⟳</div><span class="badge-attempt">第 2 次</span><div class="lbl">自修复</div><div class="sub">AI 正在修复 JS 报错</div></div>
+            <div class="step"><div class="dot">5</div><div class="lbl">完成</div></div>
+          </div>
+        </div>
+        <div class="stage-wrap">
+          <div class="stage-toolbar">
+            <div class="title">冒泡排序 · 单轮状态对比<small>btn-prev / 单步执行 / btn-next</small></div>
+            <div class="grow"></div>
+            <button class="tbtn ghost">↗ 新窗口打开</button>
+            <button class="tbtn">💾 保存</button>
+            <button class="tbtn primary">🔗 分享给学生</button>
+          </div>
+          <div class="viz">
+            <div class="col prev" style="height:52%"><span class="v">5</span></div>
+            <div class="col hi" style="height:88%"><span class="v">8</span></div>
+            <div class="col hi" style="height:30%"><span class="v">3</span></div>
+            <div class="col" style="height:70%"><span class="v">6</span></div>
+            <div class="col" style="height:100%"><span class="v">9</span></div>
+            <div class="col" style="height:42%"><span class="v">4</span></div>
+            <div class="col" style="height:60%"><span class="v">7</span></div>
+            <div class="col" style="height:20%"><span class="v">2</span></div>
+          </div>
+          <div class="viz-note">第 <b>3</b> 轮 · 比较 a[1] 与 a[2] → 发生交换（<span style="color:#B45309">上一轮黄</span> → <b>当前绿</b>）</div>
+          <div class="ctrl-row"><button class="cbtn">⏮ 上一步</button><button class="cbtn main">▶ 单步执行</button><button class="cbtn">下一步 ⏭</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 我的作品 -->
+<section id="works">
+  <div class="sec-title"><h2>我的作品（独立页面）</h2><p>糖果色缩略图 · 大圆角卡片 · hover 浮起</p></div>
+  <div class="frame works-shot">
+    <div class="app-header">
+      <div class="brand"><div class="logo">◆</div><div><b>AlgoAgent</b><span>算法教学智能体</span></div></div>
+      <nav class="nav"><a>💬 备课对话</a><a class="on">🗂 我的作品</a></nav>
+      <div class="spacer"></div>
+      <div class="user-chip"><div class="avatar">张</div><div><div class="name">张老师</div><div class="role">管理员</div></div><span class="chev">▾</span></div>
+    </div>
+    <div class="works-head"><h3>我的作品</h3><p>共 3 件 · 覆盖式模型：保存后分享链接自动更新</p></div>
+    <div class="works-grid">
+      <div class="work-card">
+        <div class="thumb"><i style="height:40%"></i><i style="height:85%"></i><i style="height:60%"></i><i style="height:30%"></i><i style="height:95%"></i><i style="height:70%"></i></div>
+        <h4>冒泡排序 · 单轮状态对比<span class="wtag ok" style="float:right">✓ 已通过</span></h4>
+        <div class="wmeta"><span>🕘 今天 10:31</span><span>⟳ 2 次自修复</span></div>
+        <div class="wacts"><button class="tbtn">👁 预览</button><button class="tbtn primary">🔗 分享</button></div>
+      </div>
+      <div class="work-card">
+        <div class="thumb"><i style="height:60%"></i><i style="height:95%"></i><i style="height:40%"></i><i style="height:75%"></i><i style="height:55%"></i><i style="height:88%"></i></div>
+        <h4>Dijkstra 最短路径 · 松弛演示<span class="wtag ok" style="float:right">✓ 已通过</span></h4>
+        <div class="wmeta"><span>🕘 昨天 21:07</span><span>⚡ 一次通过</span></div>
+        <div class="wacts"><button class="tbtn">👁 预览</button><button class="tbtn primary">🔗 分享</button></div>
+      </div>
+      <div class="work-card">
+        <div class="thumb"><i style="height:50%"></i><i style="height:80%"></i><i style="height:65%"></i><i style="height:35%"></i><i style="height:90%"></i><i style="height:58%"></i></div>
+        <h4>二分查找 · 范围收缩可视化<span class="wtag fail" style="float:right">✗ 未通过</span></h4>
+        <div class="wmeta"><span>🕘 昨天 20:12</span><span>⟳ 3 次未修复</span></div>
+        <div class="wacts"><button class="tbtn" disabled>👁 预览</button><button class="tbtn">🔄 重新生成</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. 分享弹窗 -->
+<section id="share" class="alt">
+  <div class="sec-title"><h2>分享弹窗（从作品工具栏唤起）</h2><p>三选有效期 · 二维码 + 复制 · 圆润样式</p></div>
+  <div class="frame share-shot">
+    <div class="overlay"></div>
+    <div class="share-dialog">
+      <h3>🔗 分享给学生</h3>
+      <div class="desc">创建免登录分享链接，学生打开即用（无需注册）</div>
+      <div class="validity-row"><div class="vopt">1 天</div><div class="vopt on">7 天</div><div class="vopt">永久</div></div>
+      <div class="share-result">
+        <div class="qr"></div>
+        <div class="url-row"><div class="u">https://algoagent.example.cn/s/xK9fPq2R</div><button class="cp">复制</button></div>
+        <div class="share-note">ⓘ 作品覆盖保存后，此链接将自动展示最新内容</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="footer-note">样品 C · 清新教育风 · 静态假数据演示 · 确认风格后将按此实现正式前端</div>
+</body>
+</html>

@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dijkstra 最短路径 · 教学可视化</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        body {
+            background: #f5f7fb;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .card {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            padding: 28px 30px 30px;
+        }
+        h1 {
+            margin: 0 0 6px;
+            font-weight: 600;
+            font-size: 1.9rem;
+            color: #1e2b3c;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .subtitle {
+            color: #4a5b6e;
+            margin: 0 0 24px;
+            font-size: 1rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 16px;
+            background: #f0f4fe;
+            border-radius: 0 12px 12px 0;
+            line-height: 1.5;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            background: #f8fafc;
+            padding: 14px 18px;
+            border-radius: 60px;
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
+        }
+        .controls button {
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            color: #1e293b;
+        }
+        .controls button:hover {
+            background: #eef2ff;
+            border-color: #818cf8;
+            transform: translateY(-1px);
+        }
+        .controls button:active {
+            transform: translateY(.src);
+        }
+        .controls .param-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+            background: white;
+            padding: 4px 12px 4px 16px;
+            border-radius: 40px;
+            border: 1px solid #e2e8f0;
+        }
+        .param-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #334155;
+        }
+        .param-group input {
+            width: 70px;
+            padding: 6px 10px;
+            border-radius: 30px;
+            border: 1px solid #cbd5e1;
+            font-weight: 600;
+            text-align: center;
+            background: #f8fafc;
+        }
+        .param-group button {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+            box-shadow: 0 4px 8px rgba(59,130,246,0.2);
+        }
+        .main-area {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .graph-panel {
+            flex: 2;
+            min-width: 380px;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 16px;
+            box-shadow: inset 0 0 0 1px #e9edf2;
+        }
+        .graph-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 0.75;
+            background: #fafcff;
+            border-radius: 18px;
+            border: 1px solid #dee5ed;
+            overflow: hidden;
+        }
+        .node {
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            background: #ffffff;
+            border: 3px solid #64748b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #0f172a;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+            z-index: 5;
+            transform: translate(-50%, -50%);
+        }
+        .node.dist-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(50%, -50%);
+            background: #1e293b;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 20px;
+            font-weight: 500;
+            border: 1px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            z-index: 6;
+            white-space: nowrap;
+        }
+        .edge {
+            position: absolute;
+            height: 3px;
+            background: #94a3b8;
+            transform-origin: 0 50%;
+            border-radius: 4px;
+            z-index: 1;
+            transition: background 0.2s, height 0.2s;
+        }
+        .edge.highlight {
+            background: #f97316;
+            height: 5px;
+            box-shadow: 0 0 8px #f97316;
+        }
+        .edge-label {
+            position: absolute;
+            font-size: 0.75rem;
+            background: white;
+            padding: 2px 6px;
+            border-radius: 20px;
+            border: 1px solid #d1d9e6;
+            color: #1e293b;
+            font-weight: 600;
+            z-index: 3;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transform: translate(-50%, -50%);
+        }
+        .info-panel {
+            flex: 1;
+            min-width: 260px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .dist-array {
+            background: #f1f5f9;
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+        }
+        .dist-array h3 {
+            margin: 0 0 12px;
+            font-size: 1rem;
+            color: #1e293b;
+            display: flex;
+            justify-content: space-between;
+        }
+        .dist-grid {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .dist-cell {
+            background: white;
+            border-radius: 12px;
+            padding: 6px 0;
+            text-align: center;
+            flex: 1 0 40px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            border: 1px solid #dbe1e8;
+        }
+        .dist-cell .node-id {
+            font-size: 0.7rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+        .dist-cell .val {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #0f172a;
+        }
+        .dist-cell.current {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+        .dist-cell.updated {
+            background: #dcfce7;
+            border-color: #22c55e;
+        }
+        .explain-box {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 16px 18px;
+            border-left: 6px solid #3b82f6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .explain-box p {
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #1e293b;
+        }
+        .step-indicator {
+            font-weight: 600;
+            color: #3b82f6;
+        }
+        .footer-note {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #64748b;
+            text-align: right;
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>📘 Dijkstra 最短路径</h1>
+    <div class="subtitle">6 节点 · 8 条边 · 松弛操作逐步演示</div>
+
+    <div class="controls">
+        <button id="btn-prev">◀ 上一步</button>
+        <button id="btn-step">▶ 单步执行</button>
+        <button id="btn-next">下一步 ▶</button>
+        <div class="param-group">
+            <label>🔀 随机种子</label>
+            <input type="number" id="seed-input" value="42" min="1" step="1">
+            <button id="btn-reset">重新生成</button>
+        </div>
+    </div>
+
+    <div class="main-area">
+        <div class="graph-panel">
+            <div id="graph-container" class="graph-container"></div>
+        </div>
+        <div class="info-panel">
+            <div class="dist-array">
+                <h3>📊 dist[] 数组 <span class="step-indicator" id="step-label">第 0 步</span></h3>
+                <div id="dist-grid" class="dist-grid"></div>
+            </div>
+            <div class="explain-box" id="explain-text">
+                <p>点击「单步执行」开始松弛操作。</p>
+            </div>
+        </div>
+    </div>
+    <div class="footer-note">✅ 标准自检: window.__verify__  |  测试用例: window.__TEST_CASES__</div>
+</div>
+
+<script>
+    (function() {
+        // ---------- 图定义 ----------
+        const NODES = ['A', 'B', 'C', 'D', 'E', 'F'];
+        const NODE_POS = {
+            A: { x: 15, y: 30 },
+            B: { x: 35, y: 15 },
+            C: { x: 70, y: 20 },
+            D: { x: 85, y: 45 },
+            E: { x: 55, y: 60 },
+            F: { x: 30, y: 70 }
+        };
+
+        // 边: [u, v, weight]
+        let edges = [
+            ['A', 'B', 4],
+            ['A', 'C', 2],
+            ['B', 'C', 1],
+            ['B', 'D', 5],
+            ['C', 'D', 8],
+            ['C', 'E', 10],
+            ['D', 'F', 6],
+            ['E', 'F', 2]
+        ];
+
+        // 随机化权重 (保持结构)
+        function randomizeEdges(seed) {
+            // 简单伪随机
+            let s = seed;
+            const rand = () => {
+                s = (s * 9301 + 49297) % 233280;
+                return s / 233280;
+            };
+            return edges.map(([u, v, w]) => {
+                let newW = Math.floor(rand() * 9) + 1; // 1~9
+                return [u, v, newW];
+            });
+        }
+
+        // 当前状态
+        let currentEdges = [...edges];
+        let steps = [];           // 步骤记录
+        let currentStepIndex = 0; // 当前显示步骤索引 (0 ~ steps.length-1)
+        let dist = {};            // 当前dist (用于展示)
+        let visited = new Set();
+        let highlightEdge = null; // 当前松弛边 [u,v] 或 null
+        let updatedNode = null;   // 被更新的节点
+
+        // ---------- 算法核心 (纯函数) ----------
+        function dijkstraCore(edgeList, source = 'A') {
+            const nodes = NODES;
+            const adj = {};
+            nodes.forEach(n => adj[n] = []);
+            edgeList.forEach(([u, v, w]) => {
+                adj[u].push({ to: v, weight: w });
+                adj[v].push({ to: u, weight: w });
+            });
+            const dist = {};
+            nodes.forEach(n => dist[n] = Infinity);
+            dist[source] = 0;
+            const visited = new Set();
+            const pq = [[0, source]];
+            while (pq.length) {
+                pq.sort((a, b) => a[0] - b[0]);
+                const [d, u] = pq.shift();
+                if (visited.has(u)) continue;
+                visited.add(u);
+                for (const { to, weight } of adj[u]) {
+                    if (!visited.has(to) && dist[u] + weight < dist[to]) {
+                        dist[to] = dist[u] + weight;
+                        pq.push([dist[to], to]);
+                    }
+                }
+            }
+            return dist;
+        }
+
+        // 生成所有步骤 (用于动画)
+        function generateSteps(edgeList) {
+            const nodes = NODES;
+            const adj = {};
+            nodes.forEach(n => adj[n] = []);
+            edgeList.forEach(([u, v, w]) => {
+                adj[u].push({ to: v, weight: w });
+                adj[v].push({ to: u, weight: w });
+            });
+            const dist = {};
+            nodes.forEach(n => dist[n] = Infinity);
+            dist['A'] = 0;
+            const visited = new Set();
+            const steps = [];
+            const pq = [[0, 'A']];
+            // 初始步骤
+            steps.push({
+                dist: { ...dist },
+                visited: new Set(visited),
+                edge: null,
+                updated: null,
+                text: '初始化：dist[A]=0，其余为∞。'
+            });
+            while (pq.length) {
+                pq.sort((a, b) => a[0] - b[0]);
+                const [d, u] = pq.shift();
+                if (visited.has(u)) continue;
+                visited.add(u);
+                // 记录访问节点后的步骤
+                steps.push({
+                    dist: { ...dist },
+                    visited: new Set(visited),
+                    edge: null,
+                    updated: null,
+                    text: `选择节点 ${u} (dist=${d})，标记为已访问。`
+                });
+                for (const { to, weight } of adj[u]) {
+                    if (!visited.has(to) && dist[u] + weight < dist[to]) {
+                        const oldDist = dist[to];
+                        dist[to] = dist[u] + weight;
+                        pq.push([dist[to], to]);
+                        steps.push({
+                            dist: { ...dist },
+                            visited: new Set(visited),
+                            edge: [u, to],
+                            updated: to,
+                            text: `松弛边 (${u}→${to})：dist[${to}] 从 ${oldDist === Infinity ? '∞' : oldDist} 更新为 ${dist[to]}`
+                        });
+                    }
+                }
+            }
+            // 最后一步
+            steps.push({
+                dist: { ...dist },
+                visited: new Set(visited),
+                edge: null,
+                updated: null,
+                text: '✅ 所有节点已访问，算法结束。'
+            });
+            return steps;
+        }
+
+        // ---------- 渲染 ----------
+        function renderGraph() {
+            const container = document.getElementById('graph-container');
+            container.innerHTML = '';
+            // 画边
+            currentEdges.forEach(([u, v, w]) => {
+                const p1 = NODE_POS[u];
+                const p2 = NODE_POS[v];
+                const x1 = p1.x, y1 = p1.y, x2 = p2.x, y2 = p2.y;
+                const length = Math.hypot(x2 - x1, y2 - y1);
+                const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+                const edgeDiv = document.createElement('div');
+                edgeDiv.className = 'edge';
+                if (highlightEdge && ((highlightEdge[0] === u && highlightEdge[1] === v) || (highlightEdge[0] === v && highlightEdge[1] === u))) {
+                    edgeDiv.classList.add('highlight');
+                }
+                edgeDiv.style.left = x1 + '%';
+                edgeDiv.style.top = y1 + '%';
+                edgeDiv.style.width = length + '%';
+                edgeDiv.style.transform = `rotate(${angle}deg)`;
+                edgeDiv.style.transformOrigin = '0 50%';
+                container.appendChild(edgeDiv);
+                // 边标签
+                const label = document.createElement('div');
+                label.className = 'edge-label';
+                label.textContent = w;
+                const midX = (x1 + x2) / 2;
+                const midY = (y1 + y2) / 2;
+                label.style.left = midX + '%';
+                label.style.top = midY + '%';
+                container.appendChild(label);
+            });
+            // 画节点
+            NODES.forEach(node => {
+                const pos = NODE_POS[node];
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = 'node';
+                nodeDiv.textContent = node;
+                nodeDiv.style.left = pos.x + '%';
+                nodeDiv.style.top = pos.y + '%';
+                container.appendChild(nodeDiv);
+                // dist 徽章
+                const badge = document.createElement('div');
+                badge.className = 'dist-badge';
+                const val = dist[node];
+                badge.textContent = val === Infinity ? '∞' : val;
+                badge.style.left = (pos.x + 6) + '%';
+                badge.style.top = (pos.y - 6) + '%';
+                container.appendChild(badge);
+            });
+        }
+
+        function renderDistArray() {
+            const grid = document.getElementById('dist-grid');
+            grid.innerHTML = '';
+            NODES.forEach(node => {
+                const cell = document.createElement('div');
+                cell.className = 'dist-cell';
+                if (updatedNode === node) cell.classList.add('updated');
+                if (highlightEdge && (highlightEdge[0] === node || highlightEdge[1] === node)) cell.classList.add('current');
+                cell.innerHTML = `<div class="node-id">${node}</div><div class="val">${dist[node] === Infinity ? '∞' : dist[node]}</div>`;
+                grid.appendChild(cell);
+            });
+        }
+
+        function updateUI() {
+            const step = steps[currentStepIndex];
+            if (!step) return;
+            dist = { ...step.dist };
+            highlightEdge = step.edge || null;
+            updatedNode = step.updated || null;
+            document.getElementById('step-label').textContent = `第 ${currentStepIndex} 步`;
+            document.getElementById('explain-text').innerHTML = `<p>${step.text}</p>`;
+            renderGraph();
+            renderDistArray();
+        }
+
+        // ---------- 初始化步骤 ----------
+        function resetWithSeed(seed) {
+            currentEdges = randomizeEdges(seed);
+            // 确保权重为正整数
+            steps = generateSteps(currentEdges);
+            currentStepIndex = 0;
+            updateUI();
+        }
+
+        // ---------- 事件绑定 ----------
+        document.getElementById('btn-step').addEventListener('click', function() {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex++;
+                updateUI();
+            }
+        });
+        document.getElementById('btn-next').addEventListener('click', function() {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex++;
+                updateUI();
+            }
+        });
+        document.getElementById('btn-prev').addEventListener('click', function() {
+            if (currentStepIndex > 0) {
+                currentStepIndex--;
+                updateUI();
+            }
+        });
+        document.getElementById('btn-reset').addEventListener('click', function() {
+            const seed = parseInt(document.getElementById('seed-input').value) || 42;
+            resetWithSeed(seed);
+        });
+
+        // 初始
+        resetWithSeed(42);
+
+        // ---------- 标准自检入口 ----------
+        window.__verify__ = function(input) {
+            // input: 边数组 [[u,v,w], ...] 或 {edges: [[u,v,w]], source: 'A'}
+            let edgeList = Array.isArray(input) ? input : input.edges;
+            let source = (input && input.source) || 'A';
+            return dijkstraCore(edgeList, source);
+        };
+
+        // ---------- 测试用例 ----------
+        window.__TEST_CASES__ = [
+            {
+                input: [['A','B',4],['A','C',2],['B','C',1],['B','D',5],['C','D',8],['C','E',10],['D','F',6],['E','F',2]],
+                expected: { A: 0, B: 3, C: 2, D: 8, E: 12, F: 14 }
+            },
+            {
+                input: [['A','B',1],['B','C',2],['A','C',10],['C','D',1]],
+                expected: { A: 0, B: 1, C: 3, D: 4 }
+            },
+            {
+                input: [['A','B',5]],
+                expected: { A: 0, B: 5, C: Infinity, D: Infinity, E: Infinity, F: Infinity }
+            }
+        ];
+    })();
+</script>
+</body>
+</html>

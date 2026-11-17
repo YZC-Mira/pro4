@@ -1,0 +1,113 @@
+/* ============ AlgoAgent 主题：样品 A 定稿（亮色渐变现代风） ============ */
+/* 设计令牌与样品 design/sample-a-light.html 一致 */
+
+:root {
+  --brand-1: #4F6EF7;
+  --brand-2: #22C1DC;
+  --grad: linear-gradient(135deg, #4F6EF7 0%, #22C1DC 100%);
+  --bg: #F7F9FC;
+  --bg-page: #EDF1F7;
+  --card: #FFFFFF;
+  --line: #E8ECF3;
+  --text-1: #1B2330;
+  --text-2: #6B7688;
+  --text-3: #9AA3B2;
+  --ok: #10B981;
+  --ok-deep: #0A8F66;
+  --warn: #F59E0B;
+  --warn-deep: #D97706;
+  --err: #EF4444;
+  --brand-soft: rgba(79, 110, 247, 0.09);
+  --shadow-sm: 0 1px 3px rgba(27, 35, 48, 0.06);
+  --shadow-md: 0 4px 16px rgba(27, 35, 48, 0.08);
+  --shadow-lg: 0 12px 32px rgba(27, 35, 48, 0.12);
+  --radius: 14px;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  background: var(--bg-page);
+  color: var(--text-1);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ---- Element Plus 品牌化覆盖 ---- */
+.el-button--primary {
+  --el-button-bg-color: var(--brand-1);
+  --el-button-border-color: var(--brand-1);
+  --el-button-hover-bg-color: #6b84f9;
+  --el-button-hover-border-color: #6b84f9;
+  --el-button-active-bg-color: #3d5be0;
+  --el-button-active-border-color: #3d5be0;
+}
+
+.grad-btn {
+  background: var(--grad) !important;
+  border: none !important;
+  color: #fff !important;
+  box-shadow: 0 8px 20px rgba(79, 110, 247, 0.35);
+}
+
+.grad-btn:hover {
+  opacity: 0.92;
+}
+
+/* 输入框聚焦品牌色 */
+.el-input__wrapper.is-focus,
+.el-textarea__inner:focus {
+  box-shadow: 0 0 0 1px var(--brand-1) inset !important;
+}
+
+/* Tabs 激活品牌色 */
+.el-tabs__item.is-active {
+  color: var(--brand-1);
+}
+
+.el-tabs__active-bar {
+  background: var(--grad);
+}
+
+/* 滚动条细化 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c9d4e4;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8b6cc;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 通用卡片 */
+.glass-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 品牌头像 */
+.brand-avatar {
+  background: var(--grad);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}

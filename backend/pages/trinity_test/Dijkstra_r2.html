@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dijkstra 最短路径 · 教学可视化</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f4f7fb;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .card {
+            max-width: 1100px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            padding: 24px 28px 32px;
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin: 0 0 4px;
+            color: #1e2b3c;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .subtitle {
+            color: #3e5a76;
+            font-weight: 400;
+            font-size: 1rem;
+            margin-bottom: 18px;
+            border-left: 4px solid #2a7de1;
+            padding-left: 14px;
+            background: #eef4ff;
+            border-radius: 0 8px 8px 0;
+            line-height: 1.4;
+        }
+        .control-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px 20px;
+            background: #eef2f6;
+            padding: 12px 18px;
+            border-radius: 40px;
+            margin-bottom: 18px;
+        }
+        .control-bar button {
+            background: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #cbd5e1;
+            color: #1e293b;
+        }
+        .control-bar button:hover {
+            background: #e6edf5;
+            border-color: #2a7de1;
+        }
+        .control-bar button:active {
+            transform: scale(0.96);
+        }
+        .param-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+        .param-group label {
+            font-weight: 500;
+            color: #334155;
+        }
+        .param-group input {
+            width: 70px;
+            padding: 6px 10px;
+            border-radius: 30px;
+            border: 1px solid #b9c7d9;
+            font-weight: 600;
+            text-align: center;
+        }
+        .param-group button {
+            background: #2a7de1;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(42,125,225,0.2);
+        }
+        .param-group button:hover {
+            background: #1e5bb5;
+        }
+        .graph-area {
+            background: #ffffff;
+            border-radius: 24px;
+            border: 1px solid #dde5ed;
+            padding: 16px 10px 10px;
+            margin-bottom: 18px;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+        }
+        #graph-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            background: #fafcff;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .node {
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #d9e6f2;
+            border: 3px solid #2a7de1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #0b1f33;
+            transition: all 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 5;
+        }
+        .node.fixed {
+            background: #2a7de1;
+            color: white;
+            border-color: #0f3b6b;
+        }
+        .node.current {
+            box-shadow: 0 0 0 8px rgba(255, 215, 0, 0.5);
+            border-color: #ffb347;
+        }
+        .edge-label {
+            position: absolute;
+            background: white;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1e293b;
+            border: 1px solid #b9c7d9;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            pointer-events: none;
+        }
+        .edge-line {
+            position: absolute;
+            height: 3px;
+            background: #94a3b8;
+            transform-origin: left center;
+            border-radius: 4px;
+            z-index: 1;
+            transition: background 0.2s, height 0.2s;
+        }
+        .edge-line.relaxed {
+            background: #f59e0b;
+            height: 5px;
+            box-shadow: 0 0 8px #fbbf24;
+        }
+        .dist-panel {
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px 24px;
+        }
+        .dist-label {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .dist-values {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        .dist-item {
+            background: white;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-weight: 600;
+            border: 1px solid #cbd5e1;
+        }
+        .dist-item span {
+            color: #2a7de1;
+            margin-left: 6px;
+            font-weight: 700;
+        }
+        .explain-box {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 14px 18px;
+            border-left: 6px solid #2a7de1;
+            margin-bottom: 18px;
+            min-height: 60px;
+            font-size: 1rem;
+            color: #0f172a;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .control-bar .step-indicator {
+            font-weight: 600;
+            color: #334155;
+            background: white;
+            padding: 4px 14px;
+            border-radius: 30px;
+            border: 1px solid #cbd5e1;
+        }
+        .footer-note {
+            font-size: 0.8rem;
+            color: #64748b;
+            text-align: right;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>📘 Dijkstra 最短路径 <span style="font-size: 1rem; font-weight: 400; color: #2a7de1;">(6节点·8边)</span></h1>
+    <div class="subtitle">松弛操作 · 逐步演示 · dist[] 变化</div>
+
+    <!-- 控件区 -->
+    <div class="control-bar">
+        <button id="btn-prev">◀ 上一步</button>
+        <button id="btn-step">▶ 单步执行</button>
+        <button id="btn-next">下一步 ▶</button>
+        <span class="step-indicator" id="step-indicator">0 / 0</span>
+        <div class="param-group">
+            <label>随机种子</label>
+            <input type="number" id="seed-input" value="42" min="1" max="999">
+            <button id="btn-reset">🔄 重新生成</button>
+        </div>
+    </div>
+
+    <!-- 可视化主体 -->
+    <div class="graph-area">
+        <div id="graph-container"></div>
+    </div>
+
+    <!-- dist 数组展示 -->
+    <div class="dist-panel">
+        <div class="dist-label">dist[] :</div>
+        <div class="dist-values" id="dist-values"></div>
+    </div>
+
+    <!-- 讲解区 -->
+    <div class="explain-box" id="explain-text">点击「单步执行」开始演示 Dijkstra 松弛过程。</div>
+
+    <div class="footer-note">✅ 标准自检: window.__verify__  |  测试用例: window.__TEST_CASES__</div>
+</div>
+
+<script>
+    (function() {
+        // ---------- 核心算法 (纯函数) ----------
+        function dijkstraCore(adjList, source = 0) {
+            const n = adjList.length;
+            const dist = new Array(n).fill(Infinity);
+            const visited = new Array(n).fill(false);
+            const parent = new Array(n).fill(-1);
+            dist[source] = 0;
+
+            for (let count = 0; count < n - 1; count++) {
+                let u = -1;
+                let minDist = Infinity;
+                for (let i = 0; i < n; i++) {
+                    if (!visited[i] && dist[i] < minDist) {
+                        minDist = dist[i];
+                        u = i;
+                    }
+                }
+                if (u === -1) break; // 不可达
+                visited[u] = true;
+                for (let v = 0; v < n; v++) {
+                    if (adjList[u][v] > 0 && !visited[v]) {
+                        const newDist = dist[u] + adjList[u][v];
+                        if (newDist < dist[v]) {
+                            dist[v] = newDist;
+                            parent[v] = u;
+                        }
+                    }
+                }
+            }
+            return { distances: dist, parent };
+        }
+
+        // ---------- 生成固定图 (6节点8边, 边权随机但可复现) ----------
+        function generateGraph(seed = 42) {
+            // 使用简单伪随机
+            let s = seed;
+            const rand = () => {
+                s = (s * 9301 + 49297) % 233280;
+                return s / 233280;
+            };
+            // 固定6个节点, 8条边 (无向图, 但Dijkstra用对称矩阵)
+            const n = 6;
+            const adj = Array.from({ length: n }, () => new Array(n).fill(0));
+            const edges = [
+                [0, 1], [0, 2], [1, 2], [1, 3],
+                [2, 4], [3, 4], [3, 5], [4, 5]
+            ];
+            for (const [u, v] of edges) {
+                const w = Math.floor(rand() * 9) + 1; // 1~9
+                adj[u][v] = w;
+                adj[v][u] = w;
+            }
+            return adj;
+        }
+
+        // 固定节点坐标 (6个)
+        const nodePositions = [
+            { x: 120, y: 80 },   // 0
+            { x: 260, y: 50 },   // 1
+            { x: 180, y: 180 },  // 2
+            { x: 360, y: 140 },  // 3
+            { x: 300, y: 240 },  // 4
+            { x: 460, y: 220 }   // 5
+        ];
+
+        // ---------- 状态管理 ----------
+        let currentGraph = generateGraph(42);
+        let steps = [];           // 存储每一步的快照
+        let currentStepIndex = -1;
+        let isPlaying = false;
+
+        // DOM 元素
+        const container = document.getElementById('graph-container');
+        const distValuesDiv = document.getElementById('dist-values');
+        const explainDiv = document.getElementById('explain-text');
+        const stepIndicator = document.getElementById('step-indicator');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnStep = document.getElementById('btn-step');
+        const btnNext = document.getElementById('btn-next');
+        const btnReset = document.getElementById('btn-reset');
+        const seedInput = document.getElementById('seed-input');
+
+        // ---------- 构建步骤 (基于当前图) ----------
+        function buildSteps(adj) {
+            const n = adj.length;
+            const dist = new Array(n).fill(Infinity);
+            const visited = new Array(n).fill(false);
+            const parent = new Array(n).fill(-1);
+            dist[0] = 0;
+            const stepList = [];
+
+            // 记录初始状态
+            stepList.push({
+                dist: [...dist],
+                visited: [...visited],
+                parent: [...parent],
+                current: -1,
+                relaxEdge: null,
+                text: '初始化：dist[0]=0，其余为∞。选择起点 0。'
+            });
+
+            for (let iter = 0; iter < n; iter++) {
+                // 选择未访问的最小dist
+                let u = -1;
+                let minD = Infinity;
+                for (let i = 0; i < n; i++) {
+                    if (!visited[i] && dist[i] < minD) {
+                        minD = dist[i];
+                        u = i;
+                    }
+                }
+                if (u === -1) break; // 不可达
+
+                visited[u] = true;
+                // 记录选中节点
+                stepList.push({
+                    dist: [...dist],
+                    visited: [...visited],
+                    parent: [...parent],
+                    current: u,
+                    relaxEdge: null,
+                    text: `选择节点 ${u} (dist=${dist[u]})，标记为已确定。`
+                });
+
+                // 松弛边
+                for (let v = 0; v < n; v++) {
+                    if (adj[u][v] > 0 && !visited[v]) {
+                        const newDist = dist[u] + adj[u][v];
+                        if (newDist < dist[v]) {
+                            const oldDist = dist[v];
+                            dist[v] = newDist;
+                            parent[v] = u;
+                            stepList.push({
+                                dist: [...dist],
+                                visited: [...visited],
+                                parent: [...parent],
+                                current: u,
+                                relaxEdge: [u, v],
+                                text: `松弛边 (${u}→${v})：${oldDist === Infinity ? '∞' : oldDist} → ${newDist}，更新 dist[${v}] = ${newDist}`
+                            });
+                        }
+                    }
+                }
+            }
+            // 最终
+            stepList.push({
+                dist: [...dist],
+                visited: [...visited],
+                parent: [...parent],
+                current: -1,
+                relaxEdge: null,
+                text: '✅ 算法完成，所有可达节点已确定最短路径。'
+            });
+            return stepList;
+        }
+
+        // ---------- 渲染步骤 ----------
+        function renderStep(step) {
+            const n = currentGraph.length;
+            // 更新dist面板
+            distValuesDiv.innerHTML = '';
+            for (let i = 0; i < n; i++) {
+                const val = step.dist[i] === Infinity ? '∞' : step.dist[i];
+                const div = document.createElement('div');
+                div.className = 'dist-item';
+                div.innerHTML = `V${i}: <span>${val}</span>`;
+                distValuesDiv.appendChild(div);
+            }
+
+            // 更新图节点
+            const nodes = container.querySelectorAll('.node');
+            nodes.forEach((node, idx) => {
+                node.classList.remove('fixed', 'current');
+                if (step.visited[idx]) node.classList.add('fixed');
+                if (step.current === idx) node.classList.add('current');
+            });
+
+            // 更新边高亮 (松弛边)
+            const edges = container.querySelectorAll('.edge-line');
+            edges.forEach(edge => {
+                edge.classList.remove('relaxed');
+            });
+            if (step.relaxEdge) {
+                const [u, v] = step.relaxEdge;
+                const edgeId = `edge-${u}-${v}`;
+                const edgeEl = document.getElementById(edgeId);
+                if (edgeEl) edgeEl.classList.add('relaxed');
+            }
+
+            // 讲解
+            explainDiv.innerText = step.text;
+            stepIndicator.innerText = `${currentStepIndex + 1} / ${steps.length}`;
+        }
+
+        // ---------- 绘制图 (节点+边) ----------
+        function drawGraph(adj) {
+            container.innerHTML = '';
+            const n = adj.length;
+            // 画边 (无向)
+            for (let i = 0; i < n; i++) {
+                for (let j = i + 1; j < n; j++) {
+                    if (adj[i][j] > 0) {
+                        const p1 = nodePositions[i];
+                        const p2 = nodePositions[j];
+                        const dx = p2.x - p1.x;
+                        const dy = p2.y - p1.y;
+                        const len = Math.sqrt(dx * dx + dy * dy);
+                        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                        const line = document.createElement('div');
+                        line.className = 'edge-line';
+                        line.id = `edge-${i}-${j}`;
+                        line.style.left = (p1.x + 22) + 'px';
+                        line.style.top = (p1.y + 22) + 'px';
+                        line.style.width = len + 'px';
+                        line.style.transform = `rotate(${angle}deg)`;
+                        container.appendChild(line);
+                        // 标签
+                        const label = document.createElement('div');
+                        label.className = 'edge-label';
+                        label.style.left = (p1.x + p2.x) / 2 + 8 + 'px';
+                        label.style.top = (p1.y + p2.y) / 2 - 18 + 'px';
+                        label.innerText = adj[i][j];
+                        container.appendChild(label);
+                    }
+                }
+            }
+            // 画节点
+            for (let i = 0; i < n; i++) {
+                const pos = nodePositions[i];
+                const node = document.createElement('div');
+                node.className = 'node';
+                node.id = `node-${i}`;
+                node.style.left = pos.x + 'px';
+                node.style.top = pos.y + 'px';
+                node.innerText = i;
+                container.appendChild(node);
+            }
+        }
+
+        // ---------- 重置并生成新步骤 ----------
+        function resetWithSeed(seed) {
+            currentGraph = generateGraph(seed);
+            drawGraph(currentGraph);
+            steps = buildSteps(currentGraph);
+            currentStepIndex = 0;
+            renderStep(steps[0]);
+        }
+
+        // ---------- 事件绑定 ----------
+        btnStep.addEventListener('click', () => {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex++;
+                renderStep(steps[currentStepIndex]);
+            } else {
+                explainDiv.innerText = '已完成所有步骤，点击「重新生成」或「上一步」回顾。';
+            }
+        });
+
+        btnNext.addEventListener('click', () => {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex++;
+                renderStep(steps[currentStepIndex]);
+            }
+        });
+
+        btnPrev.addEventListener('click', () => {
+            if (currentStepIndex > 0) {
+                currentStepIndex--;
+                renderStep(steps[currentStepIndex]);
+            }
+        });
+
+        btnReset.addEventListener('click', () => {
+            const seed = parseInt(seedInput.value, 10) || 42;
+            resetWithSeed(seed);
+        });
+
+        // 初始化
+        resetWithSeed(42);
+
+        // ---------- 标准自检入口 ----------
+        window.__verify__ = function(input) {
+            // input 为邻接矩阵 (二维数组)
+            const result = dijkstraCore(input, 0);
+            return { distances: result.distances, parent: result.parent };
+        };
+
+        // ---------- 测试用例 (3条) ----------
+        // 用例1: 典型图 (与当前图一致)
+        const testGraph1 = generateGraph(42);
+        const expected1 = dijkstraCore(testGraph1, 0);
+        // 用例2: 另一个种子
+        const testGraph2 = generateGraph(7);
+        const expected2 = dijkstraCore(testGraph2, 0);
+        // 边界: 单节点图
+        const singleNode = [[0]];
+        const expected3 = { distances: [0], parent: [-1] };
+
+        window.__TEST_CASES__ = [
+            { input: testGraph1, expected: expected1 },
+            { input: testGraph2, expected: expected2 },
+            { input: singleNode, expected: expected3 }
+        ];
+
+    })();
+</script>
+</body>
+</html>

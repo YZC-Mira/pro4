@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冒泡排序 · 教学可视化</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; padding: 20px; display: flex; justify-content: center; }
+        .container { max-width: 900px; width: 100%; background: white; border-radius: 16px; padding: 24px 28px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        h1 { font-size: 1.8rem; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+        .subtitle { color: #64748b; margin-bottom: 20px; font-size: 0.95rem; border-left: 4px solid #3b82f6; padding-left: 12px; }
+        .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 24px; background: #f8fafc; padding: 12px 16px; border-radius: 12px; }
+        .controls label { font-weight: 500; color: #334155; }
+        .controls input[type="number"] { width: 70px; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; }
+        .btn-group { display: flex; gap: 8px; margin-left: auto; }
+        .btn-group button { background: white; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+        .btn-group button:hover { background: #eef2f7; }
+        .btn-group button:active { background: #e2e8f0; }
+        #btn-step { background: #3b82f6; border-color: #3b82f6; color: white; }
+        #btn-step:hover { background: #2563eb; }
+        .vis-area { background: #f1f5f9; border-radius: 16px; padding: 20px 12px 12px 12px; margin-bottom: 20px; display: flex; align-items: flex-end; justify-content: center; gap: 8px; min-height: 240px; }
+        .bar { width: 48px; background: #3b82f6; border-radius: 6px 6px 0 0; transition: height 0.2s ease, background 0.2s; position: relative; }
+        .bar span { position: absolute; bottom: -24px; left: 0; right: 0; text-align: center; font-size: 0.85rem; font-weight: 500; color: #1e293b; }
+        .bar.compare { background: #f59e0b; }
+        .bar.swap { background: #ef4444; }
+        .bar.sorted { background: #10b981; }
+        .info-panel { background: #f8fafc; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; border-left: 6px solid #3b82f6; min-height: 60px; }
+        #step-desc { font-size: 1.05rem; color: #0f172a; }
+        .status { font-size: 0.9rem; color: #475569; margin-top: 6px; }
+        .footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 16px; }
+        .footer small { color: #94a3b8; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🫧 冒泡排序</h1>
+    <div class="subtitle">比较相邻元素 · 每轮将最大值冒泡至末尾</div>
+
+    <!-- 参数区 -->
+    <div class="controls">
+        <label>数组长度</label>
+        <input type="number" id="array-size" min="2" max="12" value="8" step="1">
+        <button id="btn-reset" style="background:#e2e8f0; border:1px solid #cbd5e1; padding:6px 14px; border-radius:8px; cursor:pointer;">重新生成</button>
+        <div class="btn-group">
+            <button id="btn-prev">◀ 上一步</button>
+            <button id="btn-step">▶ 单步执行</button>
+            <button id="btn-next">下一步 ▶</button>
+        </div>
+    </div>
+
+    <!-- 可视化柱状图 -->
+    <div id="vis" class="vis-area"></div>
+
+    <!-- 讲解区 -->
+    <div class="info-panel">
+        <div id="step-desc">点击「单步执行」开始排序，或调整长度后重新生成。</div>
+        <div id="status" class="status">就绪 · 共 0 步</div>
+    </div>
+
+    <div class="footer">
+        <small>教学演示 · 冒泡排序</small>
+        <small>高亮: 🟡比较  🔴交换  🟢已就位</small>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- 核心算法 (纯函数) ----------
+        function bubbleSort(arr) {
+            const a = arr.slice();
+            const n = a.length;
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - 1 - i; j++) {
+                    if (a[j] > a[j+1]) {
+                        [a[j], a[j+1]] = [a[j+1], a[j]];
+                    }
+                }
+            }
+            return a;
+        }
+
+        // 暴露标准自检入口
+        window.__broken_verify__ = function(input) {
+            if (!Array.isArray(input)) return { sorted: [] };
+            return { sorted: bubbleSort(input) };
+        };
+
+        // 自测断言 (3条: 2典型 + 1边界)
+        window.__TEST_CASES__ = [
+            { input: [5, 2, 9, 1, 7], expected: { sorted: [1, 2, 5, 7, 9] } },
+            { input: [3, 0, -2, 8, 4, 1], expected: { sorted: [-2, 0, 1, 3, 4, 8] } },
+            { input: [42], expected: { sorted: [42] } }  // 边界: 单元素
+        ];
+
+        // ---------- 可视化状态 ----------
+        let currentArray = [];      // 当前数组值
+        let steps = [];            // 步骤记录: {type:'compare'|'swap'|'sorted'|'done', i, j, arr, desc}
+        let currentStepIndex = -1; // 当前步骤索引 (-1表示初始)
+        let sortedFlag = false;
+
+        // DOM 元素
+        const visEl = document.getElementById('vis');
+        const descEl = document.getElementById('step-desc');
+        const statusEl = document.getElementById('status');
+        const sizeInput = document.getElementById('array-size');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnStep = document.getElementById('btn-step');
+        const btnNext = document.getElementById('btn-next');
+        const btnReset = document.getElementById('btn-reset');
+
+        // ---------- 生成随机数组 ----------
+        function generateRandomArray(len) {
+            const arr = [];
+            for (let i = 0; i < len; i++) {
+                arr.push(Math.floor(Math.random() * 60) + 10); // 10~69
+            }
+            return arr;
+        }
+
+        // ---------- 预计算所有步骤 (冒泡排序过程) ----------
+        function buildSteps(arr) {
+            const a = arr.slice();
+            const n = a.length;
+            const stepsArr = [];
+            // 初始状态
+            stepsArr.push({ type: 'init', i: -1, j: -1, arr: a.slice(), desc: '初始数组' });
+
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - 1 - i; j++) {
+                    // 比较步骤
+                    stepsArr.push({ type: 'compare', i: i, j: j, arr: a.slice(), desc: `比较 a[${j}]=${a[j]} 与 a[${j+1}]=${a[j+1]}` });
+                    if (a[j] > a[j+1]) {
+                        // 交换
+                        [a[j], a[j+1]] = [a[j+1], a[j]];
+                        stepsArr.push({ type: 'swap', i: i, j: j, arr: a.slice(), desc: `交换 a[${j}] 与 a[${j+1}] → ${a[j]} ${a[j+1]}` });
+                    }
+                }
+                // 标记本轮结束 (最后一个元素已就位)
+                stepsArr.push({ type: 'sorted', i: i, j: n - 1 - i, arr: a.slice(), desc: `第 ${i+1} 轮结束，a[${n-1-i}] 已就位` });
+            }
+            // 最后全部有序
+            stepsArr.push({ type: 'done', i: -1, j: -1, arr: a.slice(), desc: '🎉 排序完成！' });
+            return stepsArr;
+        }
+
+        // ---------- 渲染柱状图 ----------
+        function renderBars(arr, highlight = {}) {
+            visEl.innerHTML = '';
+            const maxVal = Math.max(...arr, 1);
+            arr.forEach((val, idx) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                const height = (val / maxVal) * 180 + 20; // 最小20px
+                bar.style.height = height + 'px';
+                bar.innerHTML = `<span>${val}</span>`;
+                // 高亮逻辑
+                if (highlight.compareIdx !== undefined && (idx === highlight.compareIdx || idx === highlight.compareIdx + 1)) {
+                    bar.classList.add('compare');
+                }
+                if (highlight.swapIdx !== undefined && (idx === highlight.swapIdx || idx === highlight.swapIdx + 1)) {
+                    bar.classList.add('swap');
+                }
+                if (highlight.sortedIdx !== undefined && idx >= highlight.sortedIdx) {
+                    bar.classList.add('sorted');
+                }
+                if (highlight.done) {
+                    bar.classList.add('sorted');
+                }
+                visEl.appendChild(bar);
+            });
+        }
+
+        // ---------- 更新到指定步骤 ----------
+        function applyStep(index) {
+            if (index < 0 || index >= steps.length) return;
+            const step = steps[index];
+            currentStepIndex = index;
+
+            // 更新数组显示
+            const arr = step.arr;
+            currentArray = arr.slice();
+
+            // 高亮设置
+            let highlight = {};
+            if (step.type === 'compare') {
+                highlight.compareIdx = step.j;
+            } else if (step.type === 'swap') {
+                highlight.swapIdx = step.j;
+            } else if (step.type === 'sorted') {
+                highlight.sortedIdx = step.j; // 从该位置到最后已排序
+            } else if (step.type === 'done') {
+                highlight.done = true;
+            }
+
+            renderBars(arr, highlight);
+
+            // 描述
+            descEl.textContent = `第 ${index} 步 · ${step.desc}`;
+            statusEl.textContent = `步骤 ${index} / ${steps.length - 1} · 当前数组: [${arr.join(', ')}]`;
+
+            // 按钮状态
+            btnPrev.disabled = (index === 0);
+            btnNext.disabled = (index === steps.length - 1);
+            if (index === steps.length - 1) {
+                btnStep.textContent = '完成';
+                btnStep.disabled = true;
+            } else {
+                btnStep.textContent = '单步执行';
+                btnStep.disabled = false;
+            }
+        }
+
+        // ---------- 重置并重新生成 ----------
+        function resetAndGenerate() {
+            let len = parseInt(sizeInput.value, 10);
+            if (isNaN(len) || len < 2) len = 2;
+            if (len > 12) len = 12;
+            sizeInput.value = len;
+
+            const newArr = generateRandomArray(len);
+            steps = buildSteps(newArr);
+            currentStepIndex = 0;
+            applyStep(0);
+            sortedFlag = false;
+        }
+
+        // ---------- 事件绑定 ----------
+        btnStep.addEventListener('click', function() {
+            if (currentStepIndex < steps.length - 1) {
+                applyStep(currentStepIndex + 1);
+            }
+        });
+
+        btnNext.addEventListener('click', function() {
+            if (currentStepIndex < steps.length - 1) {
+                applyStep(currentStepIndex + 1);
+            }
+        });
+
+        btnPrev.addEventListener('click', function() {
+            if (currentStepIndex > 0) {
+                applyStep(currentStepIndex - 1);
+            }
+        });
+
+        btnReset.addEventListener('click', function() {
+            resetAndGenerate();
+        });
+
+        sizeInput.addEventListener('change', function() {
+            resetAndGenerate();
+        });
+
+        // 初始化
+        resetAndGenerate();
+
+        // 额外: 确保按钮初始状态
+        btnPrev.disabled = true;
+    })();
+</script>
+</body>
+</html>

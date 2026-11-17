@@ -1,0 +1,28 @@
+# ============ AlgoAgent 生产部署（任务 10 / 选型 6.2） ============
+# 用法：cd deploy && cp .env.example .env（填好 SECRET_KEY）&& docker compose up -d --build
+# 单容器即完整产品（选型 6.1：容器内不装 Nginx，FastAPI 托管前端 + API，单进程单端口）。
+# TLS 场景：前置华为云 ELB/弹性负载均衡或自建 Nginx 反代 8000 端口（见 部署指南.md）。
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: algoagent:latest
+    container_name: algoagent
+    ports:
+      - "80:8000"
+    volumes:
+      - algoagent_data:/data
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  algoagent_data:

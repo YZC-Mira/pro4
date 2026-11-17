@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二分查找 · 算法可视化</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, 'Segoe UI', Roboto, sans-serif; background: #f5f7fb; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 24px 28px; }
+        h1 { font-size: 1.8rem; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+        .subtitle { color: #64748b; font-size: 0.95rem; margin-bottom: 20px; border-left: 4px solid #3b82f6; padding-left: 12px; }
+        .controls { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; background: #f8fafc; padding: 16px 20px; border-radius: 12px; margin-bottom: 24px; }
+        .controls label { font-weight: 500; color: #334155; }
+        .controls input[type="number"] { width: 80px; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; }
+        .controls button { background: #3b82f6; border: none; color: white; padding: 8px 16px; border-radius: 8px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+        .controls button:hover { background: #2563eb; }
+        .controls .spacer { flex: 1; }
+        .step-buttons { display: flex; gap: 8px; }
+        .step-buttons button { background: #e2e8f0; color: #1e293b; font-weight: 500; }
+        .step-buttons button:hover { background: #cbd5e1; }
+        .visualization { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 16px; padding: 20px 16px; margin-bottom: 20px; min-height: 120px; }
+        .array-row { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 16px 0; }
+        .cell { width: 52px; height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 8px; font-weight: 600; font-size: 1.2rem; color: #0f172a; border: 2px solid transparent; transition: all 0.1s; }
+        .cell .index { font-size: 0.7rem; color: #64748b; font-weight: 400; line-height: 1; }
+        .cell.low { background: #dbeafe; border-color: #3b82f6; }
+        .cell.mid { background: #fef3c7; border-color: #f59e0b; }
+        .cell.high { background: #fee2e2; border-color: #ef4444; }
+        .cell.low.mid { background: #a5b4fc; border-color: #6366f1; }
+        .cell.mid.high { background: #fcd34d; border-color: #d97706; }
+        .cell.low.high { background: #fca5a5; border-color: #b91c1c; }
+        .cell.found { background: #bbf7d0; border-color: #22c55e; }
+        .legend { display: flex; justify-content: center; gap: 24px; margin-top: 8px; font-size: 0.85rem; color: #475569; }
+        .legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .legend .dot { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+        .explanation { background: #f0f9ff; border-left: 6px solid #0ea5e9; padding: 14px 18px; border-radius: 8px; margin: 20px 0; font-size: 1.05rem; color: #0c4a6e; min-height: 60px; }
+        .status-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; color: #475569; font-size: 0.9rem; }
+        .footer { margin-top: 20px; font-size: 0.8rem; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 16px; }
+        .verify-info { background: #f8fafc; border-radius: 8px; padding: 8px 12px; font-family: monospace; font-size: 0.8rem; color: #334155; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🔍 二分查找 · 逐步演示</h1>
+    <div class="subtitle">有序数组 · 每步高亮 low / mid / high · 观察搜索区间收缩</div>
+
+    <!-- 参数区 -->
+    <div class="controls">
+        <label>数组大小
+            <input type="number" id="sizeInput" min="1" max="15" value="8">
+        </label>
+        <label>目标值
+            <input type="number" id="targetInput" value="5">
+        </label>
+        <button id="btn-reset">重新生成</button>
+        <div class="spacer"></div>
+        <div class="step-buttons">
+            <button id="btn-prev">◀ 上一步</button>
+            <button id="btn-step">▶ 单步执行</button>
+            <button id="btn-next">下一步 ▶</button>
+        </div>
+    </div>
+
+    <!-- 可视化主体 -->
+    <div class="visualization">
+        <div id="arrayContainer" class="array-row"></div>
+        <div class="legend">
+            <span><span class="dot" style="background:#dbeafe; border:2px solid #3b82f6;"></span> low</span>
+            <span><span class="dot" style="background:#fef3c7; border:2px solid #f59e0b;"></span> mid</span>
+            <span><span class="dot" style="background:#fee2e2; border:2px solid #ef4444;"></span> high</span>
+            <span><span class="dot" style="background:#bbf7d0; border:2px solid #22c55e;"></span> 已找到</span>
+        </div>
+    </div>
+
+    <!-- 讲解区 -->
+    <div id="explanation" class="explanation">点击「单步执行」开始二分查找。初始 low=0, high=size-1。</div>
+
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <span id="stepInfo">步骤 0 / 0</span>
+        <span id="rangeInfo">当前区间: [0, 7]</span>
+    </div>
+    <div class="footer">二分查找 · 教学可视化 | 每次比较后区间减半</div>
+</div>
+
+<script>
+    (function() {
+        // ---------- 核心状态 ----------
+        let array = [];          // 有序数组
+        let target = 5;
+        let steps = [];          // 存储每一步的快照 {low, mid, high, found, msg}
+        let currentStep = -1;    // 当前步索引
+
+        // DOM 元素
+        const container = document.getElementById('arrayContainer');
+        const explanation = document.getElementById('explanation');
+        const stepInfo = document.getElementById('stepInfo');
+        const rangeInfo = document.getElementById('rangeInfo');
+        const sizeInput = document.getElementById('sizeInput');
+        const targetInput = document.getElementById('targetInput');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnStep = document.getElementById('btn-step');
+        const btnNext = document.getElementById('btn-next');
+        const btnReset = document.getElementById('btn-reset');
+
+        // ---------- 工具函数 ----------
+        function generateSortedArray(size) {
+            // 生成从1开始的连续整数，保证有序且不重复
+            const arr = [];
+            for (let i = 0; i < size; i++) arr.push(i + 1);
+            return arr;
+        }
+
+        // 计算二分查找的所有步骤 (纯逻辑，供可视化使用)
+        function computeSteps(arr, tgt) {
+            const steps = [];
+            let low = 0, high = arr.length - 1;
+            let found = false;
+            let mid = -1;
+            while (low <= high) {
+                mid = Math.floor((low + high) / 2);
+                steps.push({
+                    low: low,
+                    mid: mid,
+                    high: high,
+                    found: false,
+                    msg: `比较 arr[${mid}] = ${arr[mid]} 与目标 ${tgt}`
+                });
+                if (arr[mid] === tgt) {
+                    steps.push({
+                        low: low,
+                        mid: mid,
+                        high: high,
+                        found: true,
+                        msg: `✅ 找到目标 ${tgt}，下标 = ${mid}`
+                    });
+                    found = true;
+                    break;
+                } else if (arr[mid] < tgt) {
+                    steps[steps.length-1].msg += ` → ${arr[mid]} < ${tgt}，向右收缩`;
+                    low = mid + 1;
+                } else {
+                    steps[steps.length-1].msg += ` → ${arr[mid]} > ${tgt}，向左收缩`;
+                    high = mid - 1;
+                }
+            }
+            if (!found) {
+                steps.push({
+                    low: low,
+                    mid: -1,
+                    high: high,
+                    found: false,
+                    msg: `❌ 未找到目标 ${tgt}，区间为空`
+                });
+            }
+            return steps;
+        }
+
+        // 渲染当前步骤
+        function renderStep(stepIndex) {
+            if (stepIndex < 0 || stepIndex >= steps.length) return;
+            const step = steps[stepIndex];
+            const low = step.low, mid = step.mid, high = step.high, found = step.found;
+
+            // 渲染数组
+            let html = '';
+            for (let i = 0; i < array.length; i++) {
+                let classes = 'cell';
+                if (found && i === mid) classes += ' found';
+                else {
+                    if (i === low) classes += ' low';
+                    if (i === mid) classes += ' mid';
+                    if (i === high) classes += ' high';
+                }
+                html += `<div class="${classes}"><span class="index">${i}</span>${array[i]}</div>`;
+            }
+            container.innerHTML = html;
+
+            // 讲解文字
+            explanation.textContent = step.msg;
+
+            // 状态栏
+            stepInfo.textContent = `步骤 ${stepIndex + 1} / ${steps.length}`;
+            if (step.found) {
+                rangeInfo.textContent = `已找到，下标 = ${mid}`;
+            } else if (step.low > step.high) {
+                rangeInfo.textContent = `区间为空 [${step.low}, ${step.high}]`;
+            } else {
+                rangeInfo.textContent = `当前区间: [${step.low}, ${step.high}]`;
+            }
+        }
+
+        // 重置并重新生成
+        function reset() {
+            const size = parseInt(sizeInput.value, 10);
+            const tgt = parseInt(targetInput.value, 10);
+            if (isNaN(size) || size < 1) sizeInput.value = 8;
+            if (isNaN(tgt)) targetInput.value = 5;
+            const finalSize = Math.min(15, Math.max(1, parseInt(sizeInput.value, 10) || 8));
+            const finalTarget = parseInt(targetInput.value, 10) || 5;
+            array = generateSortedArray(finalSize);
+            target = finalTarget;
+            steps = computeSteps(array, target);
+            currentStep = 0;
+            renderStep(0);
+        }
+
+        // 单步执行 (向前一步)
+        function stepForward() {
+            if (steps.length === 0) reset();
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                renderStep(currentStep);
+            } else {
+                // 已经到最后，保持
+                renderStep(currentStep);
+            }
+        }
+
+        // 下一步 (同单步，但为了语义保留)
+        function nextStep() {
+            stepForward();
+        }
+
+        // 上一步
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                renderStep(currentStep);
+            } else {
+                renderStep(0);
+            }
+        }
+
+        // ---------- 事件绑定 ----------
+        btnStep.addEventListener('click', stepForward);
+        btnNext.addEventListener('click', nextStep);
+        btnPrev.addEventListener('click', prevStep);
+        btnReset.addEventListener('click', reset);
+
+        // 输入变化时自动重置 (防抖简单处理)
+        sizeInput.addEventListener('change', reset);
+        targetInput.addEventListener('change', reset);
+
+        // 初始化
+        reset();
+
+        // ---------- 标准自检入口 ----------
+        window.__verify__ = function(input) {
+            // 输入格式: {array: number[], target: number}
+            // 返回: {found: boolean, index: number|null}
+            const arr = input.array;
+            const tgt = input.target;
+            let low = 0, high = arr.length - 1;
+            while (low <= high) {
+                const mid = Math.floor((low + high) / 2);
+                if (arr[mid] === tgt) return { found: true, index: mid };
+                else if (arr[mid] < tgt) low = mid + 1;
+                else high = mid - 1;
+            }
+            return { found: false, index: null };
+        };
+
+        // ---------- 测试用例 (与__verify__结构完全一致) ----------
+        window.__TEST_CASES__ = [
+            {
+                input: { array: [1, 3, 5, 7, 9], target: 5 },
+                expected: { found: true, index: 2 }
+            },
+            {
+                input: { array: [1, 3, 5, 7, 9], target: 1 },
+                expected: { found: true, index: 0 }
+            },
+            {
+                input: { array: [1, 3, 5, 7, 9], target: 8 },
+                expected: { found: false, index: null }
+            },
+            {
+                input: { array: [2], target: 2 },
+                expected: { found: true, index: 0 }
+            },
+            {
+                input: { array: [2], target: 3 },
+                expected: { found: false, index: null }
+            },
+            {
+                input: { array: [], target: 1 },
+                expected: { found: false, index: null }
+            }
+        ];
+
+        // 额外自检 (控制台可调用)
+        console.log('二分查找可视化已加载，测试用例: ', window.__TEST_CASES__.length);
+    })();
+</script>
+</body>
+</html>

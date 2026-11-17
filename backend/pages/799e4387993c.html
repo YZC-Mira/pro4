@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二叉树前序遍历 · 算法可视化</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, sans-serif; background: #f5f7fb; display: flex; justify-content: center; padding: 20px; }
+        .container { max-width: 1000px; width: 100%; background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 24px; }
+        h1 { font-size: 1.6rem; color: #1e293b; margin-bottom: 4px; }
+        .subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 20px; }
+        .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 24px; }
+        button { background: #2563eb; color: white; border: none; padding: 8px 18px; border-radius: 8px; font-size: 0.95rem; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .param-area { display: flex; gap: 16px; align-items: center; margin-left: auto; }
+        .param-area label { font-size: 0.9rem; color: #334155; }
+        .param-area input { width: 70px; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
+        .tree-visual { display: flex; justify-content: center; padding: 20px 0; background: #f8fafc; border-radius: 16px; margin-bottom: 20px; min-height: 220px; }
+        .tree-svg { width: 100%; max-width: 700px; height: auto; }
+        .node-circle { fill: #e2e8f0; stroke: #475569; stroke-width: 2; }
+        .node-circle.visited { fill: #fbbf24; stroke: #b45309; }
+        .node-circle.current { fill: #ef4444; stroke: #7f1d1d; }
+        .node-text { font-family: monospace; font-size: 16px; fill: #0f172a; text-anchor: middle; dominant-baseline: central; }
+        .edge-line { stroke: #94a3b8; stroke-width: 2; }
+        .info-panel { display: flex; gap: 20px; flex-wrap: wrap; background: #f1f5f9; padding: 16px 20px; border-radius: 12px; margin-bottom: 20px; }
+        .visit-order { font-size: 1.1rem; font-weight: 600; color: #0f172a; }
+        .visit-order span { background: #fbbf24; padding: 2px 8px; border-radius: 12px; margin-right: 6px; }
+        .step-desc { color: #334155; font-size: 0.95rem; }
+        .step-desc strong { color: #b45309; }
+        .footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 16px; }
+        .test-info { font-size: 0.8rem; color: #64748b; }
+        .btn-reset { background: #475569; }
+        .btn-reset:hover { background: #334155; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🌳 二叉树前序遍历 (Preorder)</h1>
+    <div class="subtitle">根 → 左 → 右 · 逐步演示</div>
+
+    <!-- 控件区 -->
+    <div class="controls">
+        <button id="btn-prev" disabled>◀ 上一步</button>
+        <button id="btn-step">▶ 单步执行</button>
+        <button id="btn-next" disabled>下一步 ▶</button>
+        <div class="param-area">
+            <label>节点数 (7/10/13)</label>
+            <input type="number" id="nodeCount" min="7" max="13" step="3" value="7" style="width:60px;">
+            <button id="btn-reset" class="btn-reset">重新生成</button>
+        </div>
+    </div>
+
+    <!-- 树可视化 -->
+    <div class="tree-visual">
+        <svg id="treeSvg" class="tree-svg" viewBox="0 0 600 250" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+
+    <!-- 信息面板 -->
+    <div class="info-panel">
+        <div class="visit-order">访问序列: <span id="visitSeq">[]</span></div>
+        <div class="step-desc" id="stepDesc">点击"单步执行"开始遍历</div>
+    </div>
+
+    <!-- 底部 -->
+    <div class="footer">
+        <div class="test-info">✅ 自检: window.__verify__ · 3 组测试</div>
+        <div style="display:flex; gap:8px;">
+            <button id="btn-verify" style="background:#059669;">运行自检</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- 二叉树定义 (固定结构, 7/10/13节点) ----------
+        function buildTree(n) {
+            // 完全二叉树结构 (层序编号)
+            const nodes = [];
+            for (let i = 0; i < n; i++) nodes.push({ id: i, val: i+1, left: null, right: null });
+            for (let i = 0; i < n; i++) {
+                const leftIdx = 2*i + 1;
+                const rightIdx = 2*i + 2;
+                if (leftIdx < n) nodes[i].left = nodes[leftIdx];
+                if (rightIdx < n) nodes[i].right = nodes[rightIdx];
+            }
+            return nodes[0]; // 返回根节点
+        }
+
+        // 前序遍历 (纯函数, 返回节点值数组)
+        function preorder(root) {
+            const result = [];
+            function dfs(node) {
+                if (!node) return;
+                result.push(node.val);
+                dfs(node.left);
+                dfs(node.right);
+            }
+            dfs(root);
+            return result;
+        }
+
+        // ---------- 全局验证接口 ----------
+        window.__verify__ = function(input) {
+            // input: 节点数量 (number)
+            const n = Number(input);
+            if (isNaN(n) || n < 1) return { preorder: [] };
+            const root = buildTree(n);
+            return { preorder: preorder(root) };
+        };
+
+        // ---------- 测试用例 (与__verify__结构一致) ----------
+        window.__TEST_CASES__ = [
+            { input: 7, expected: { preorder: [1,2,4,5,3,6,7] } },
+            { input: 10, expected: { preorder: [1,2,4,8,9,5,10,3,6,7] } },
+            { input: 1, expected: { preorder: [1] } }  // 边界: 单节点
+        ];
+
+        // ---------- 状态管理 ----------
+        let currentNodeCount = 7;
+        let root = buildTree(currentNodeCount);
+        let steps = [];           // 存储每一步的访问节点id序列
+        let currentStepIndex = -1; // -1表示未开始
+        let visitedNodes = [];     // 当前步已访问的节点id (顺序)
+
+        // DOM 元素
+        const btnPrev = document.getElementById('btn-prev');
+        const btnStep = document.getElementById('btn-step');
+        const btnNext = document.getElementById('btn-next');
+        const btnReset = document.getElementById('btn-reset');
+        const btnVerify = document.getElementById('btn-verify');
+        const nodeCountInput = document.getElementById('nodeCount');
+        const visitSeqEl = document.getElementById('visitSeq');
+        const stepDescEl = document.getElementById('stepDesc');
+        const svg = document.getElementById('treeSvg');
+
+        // ---------- 生成步骤 (前序访问序列) ----------
+        function generateSteps() {
+            const seq = preorder(root);
+            steps = [];
+            // 逐步构建: 每一步记录当前访问的节点id (从根开始)
+            let visited = [];
+            // 用递归模拟步骤
+            function traverse(node) {
+                if (!node) return;
+                visited.push(node.id);
+                steps.push([...visited]); // 深拷贝
+                traverse(node.left);
+                traverse(node.right);
+            }
+            traverse(root);
+            currentStepIndex = -1;
+            visitedNodes = [];
+            updateUI();
+        }
+
+        // ---------- 绘制树 (SVG) ----------
+        function drawTree() {
+            const width = 600, height = 250;
+            const levelHeight = 60;
+            const positions = new Map();
+            // 计算每个节点的位置 (基于完全二叉树)
+            function computePos(node, depth, left, right) {
+                if (!node) return;
+                const mid = (left + right) / 2;
+                positions.set(node.id, { x: mid, y: depth * levelHeight + 40 });
+                computePos(node.left, depth+1, left, mid);
+                computePos(node.right, depth+1, mid, right);
+            }
+            computePos(root, 0, 50, width-50);
+
+            // 生成SVG内容
+            let svgContent = '';
+            // 画边
+            function drawEdges(node) {
+                if (!node) return;
+                if (node.left) {
+                    const p1 = positions.get(node.id);
+                    const p2 = positions.get(node.left.id);
+                    svgContent += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" class="edge-line"/>`;
+                    drawEdges(node.left);
+                }
+                if (node.right) {
+                    const p1 = positions.get(node.id);
+                    const p2 = positions.get(node.right.id);
+                    svgContent += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" class="edge-line"/>`;
+                    drawEdges(node.right);
+                }
+            }
+            drawEdges(root);
+
+            // 画节点
+            function drawNodes(node) {
+                if (!node) return;
+                const pos = positions.get(node.id);
+                const isVisited = visitedNodes.includes(node.id);
+                const isCurrent = (currentStepIndex >= 0 && steps[currentStepIndex] && steps[currentStepIndex][steps[currentStepIndex].length-1] === node.id);
+                let cls = 'node-circle';
+                if (isCurrent) cls += ' current';
+                else if (isVisited) cls += ' visited';
+                svgContent += `<circle cx="${pos.x}" cy="${pos.y}" r="22" class="${cls}"/>`;
+                svgContent += `<text x="${pos.x}" y="${pos.y}" class="node-text">${node.val}</text>`;
+                drawNodes(node.left);
+                drawNodes(node.right);
+            }
+            drawNodes(root);
+
+            svg.innerHTML = svgContent;
+        }
+
+        // ---------- 更新UI (按钮状态, 访问序列, 描述) ----------
+        function updateUI() {
+            // 按钮状态
+            btnPrev.disabled = (currentStepIndex <= 0);
+            btnNext.disabled = (currentStepIndex >= steps.length - 1);
+            btnStep.disabled = (currentStepIndex >= steps.length - 1);
+
+            // 更新访问序列
+            if (currentStepIndex >= 0) {
+                const seq = steps[currentStepIndex].map(id => root ? id+1 : 0); // 显示值 (id+1)
+                visitSeqEl.textContent = '[' + seq.join(', ') + ']';
+            } else {
+                visitSeqEl.textContent = '[]';
+            }
+
+            // 描述
+            if (currentStepIndex === -1) {
+                stepDescEl.innerHTML = '点击 <strong>单步执行</strong> 开始前序遍历';
+            } else {
+                const nodeId = steps[currentStepIndex][steps[currentStepIndex].length-1];
+                const nodeVal = nodeId + 1;
+                if (currentStepIndex === 0) {
+                    stepDescEl.innerHTML = `访问根节点 <strong>${nodeVal}</strong> (值 ${nodeVal})`;
+                } else {
+                    const prevLen = steps[currentStepIndex-1].length;
+                    const curLen = steps[currentStepIndex].length;
+                    if (curLen > prevLen) {
+                        stepDescEl.innerHTML = `访问节点 <strong>${nodeVal}</strong> (值 ${nodeVal}) · 加入序列`;
+                    } else {
+                        // 回溯
+                        stepDescEl.innerHTML = `回溯到节点 <strong>${nodeVal}</strong> (值 ${nodeVal})`;
+                    }
+                }
+            }
+
+            // 更新visitedNodes (用于高亮)
+            if (currentStepIndex >= 0) {
+                visitedNodes = steps[currentStepIndex];
+            } else {
+                visitedNodes = [];
+            }
+            drawTree();
+        }
+
+        // ---------- 事件绑定 ----------
+        btnStep.addEventListener('click', () => {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex++;
+                updateUI();
+            }
+        });
+
+        btnPrev.addEventListener('click', () => {
+            if (currentStepIndex > 0) {
+                currentStepIndex--;
+                updateUI();
+            }
+        });
+
+        btnNext.addEventListener('click', () => {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex++;
+                updateUI();
+            }
+        });
+
+        btnReset.addEventListener('click', () => {
+            let n = parseInt(nodeCountInput.value, 10);
+            if (isNaN(n) || n < 1) n = 7;
+            if (n > 13) n = 13;
+            if (n < 7) n = 7;
+            // 限制为7,10,13
+            if (n !== 7 && n !== 10 && n !== 13) {
+                n = (n < 8) ? 7 : (n < 11) ? 10 : 13;
+            }
+            nodeCountInput.value = n;
+            currentNodeCount = n;
+            root = buildTree(n);
+            generateSteps();
+            currentStepIndex = -1;
+            visitedNodes = [];
+            updateUI();
+        });
+
+        btnVerify.addEventListener('click', () => {
+            let pass = true;
+            for (const tc of window.__TEST_CASES__) {
+                const res = window.__verify__(tc.input);
+                if (JSON.stringify(res) !== JSON.stringify(tc.expected)) {
+                    pass = false;
+                    alert(`测试失败: input=${tc.input}\n期望: ${JSON.stringify(tc.expected)}\n实际: ${JSON.stringify(res)}`);
+                    break;
+                }
+            }
+            if (pass) alert('✅ 所有自测用例通过!');
+        });
+
+        // 初始化
+        generateSteps();
+        updateUI();
+    })();
+</script>
+</body>
+</html>

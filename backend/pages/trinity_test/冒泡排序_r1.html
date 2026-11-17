@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冒泡排序 · 教学可视化</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f5f7fb;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .card {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            padding: 28px 30px 35px;
+            transition: all 0.2s;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+            color: #1e293b;
+            letter-spacing: -0.5px;
+        }
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 24px;
+            font-size: 1rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 14px;
+            background: #f8fafc;
+            border-radius: 0 8px 8px 0;
+            line-height: 1.5;
+        }
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 18px;
+            background: #f1f5f9;
+            padding: 16px 20px;
+            border-radius: 40px;
+            margin-bottom: 24px;
+        }
+        .size-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .size-control label {
+            font-weight: 500;
+            color: #334155;
+        }
+        input[type="number"] {
+            width: 70px;
+            padding: 8px 12px;
+            border: 2px solid #cbd5e1;
+            border-radius: 30px;
+            font-size: 1rem;
+            text-align: center;
+            background: white;
+            transition: 0.2s;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+        }
+        button {
+            background: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1e293b;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            transition: 0.15s;
+            border: 1px solid #e2e8f0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        button:hover {
+            background: #f8fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        #btn-prev {
+            background: #eef2ff;
+            border-color: #c7d2fe;
+        }
+        #btn-step {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            box-shadow: 0 8px 16px rgba(59,130,246,0.3);
+        }
+        #btn-step:hover {
+            background: #2563eb;
+        }
+        #btn-next {
+            background: #eef2ff;
+            border-color: #c7d2fe;
+        }
+        .visual-area {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 30px 20px 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e9eef3;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .bars-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 12px;
+            height: 240px;
+            padding: 0 10px;
+        }
+        .bar {
+            background: linear-gradient(180deg, #60a5fa, #3b82f6);
+            width: 45px;
+            border-radius: 12px 12px 4px 4px;
+            transition: height 0.25s ease, background 0.15s;
+            box-shadow: 0 4px 8px rgba(59,130,246,0.2);
+            position: relative;
+            min-width: 20px;
+            flex: 0 1 auto;
+        }
+        .bar .value-label {
+            position: absolute;
+            bottom: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.9rem;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+        .bar.compare {
+            background: linear-gradient(180deg, #fbbf24, #f59e0b);
+            box-shadow: 0 0 0 4px rgba(245,158,11,0.3);
+            transform: scale(1.05);
+        }
+        .bar.swap {
+            background: linear-gradient(180deg, #f87171, #ef4444);
+            box-shadow: 0 0 0 4px rgba(239,68,68,0.3);
+        }
+        .bar.sorted {
+            background: linear-gradient(180deg, #34d399, #10b981);
+            box-shadow: 0 4px 8px rgba(16,185,129,0.2);
+        }
+        .explain-box {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 18px 24px;
+            margin: 18px 0 20px;
+            border-left: 6px solid #3b82f6;
+            font-size: 1.1rem;
+            color: #0f172a;
+            min-height: 70px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .step-indicator {
+            font-weight: 500;
+            color: #475569;
+            background: #e2e8f0;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-right: 12px;
+        }
+        .footer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .test-badge {
+            font-size: 0.8rem;
+            color: #64748b;
+            text-align: right;
+            margin-top: 20px;
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>🫧 冒泡排序 · 可视化</h1>
+    <div class="subtitle">比较相邻元素，大的向后冒泡 · 每步高亮比较对</div>
+
+    <!-- 参数区 -->
+    <div class="control-panel">
+        <div class="size-control">
+            <label>📏 数组长度</label>
+            <input type="number" id="array-size" min="2" max="12" value="8" step="1">
+            <button id="btn-reset">🔄 重新生成</button>
+        </div>
+        <div style="flex:1"></div>
+        <span style="color:#64748b; font-size:0.9rem;">⚡ 当前步骤: <span id="step-counter">0/0</span></span>
+    </div>
+
+    <!-- 可视化主体 -->
+    <div class="visual-area">
+        <div class="bars-container" id="bars-container"></div>
+    </div>
+
+    <!-- 讲解区 -->
+    <div class="explain-box" id="explain-text">
+        🎯 点击「单步执行」开始排序，或调整长度后重新生成。
+    </div>
+
+    <!-- 控件区 -->
+    <div class="footer-controls">
+        <button id="btn-prev">◀ 上一步</button>
+        <button id="btn-step">▶ 单步执行</button>
+        <button id="btn-next">下一步 ▶</button>
+    </div>
+    <div class="test-badge">✅ 内置自检: window.__verify__ 与 3 条测试用例</div>
+</div>
+
+<script>
+    (function() {
+        // ---------- 核心算法 (纯函数) ----------
+        function bubbleSortSteps(arrInput) {
+            // 返回步骤数组: 每一步包含 { array: [...], compare: [i,j], swapped: bool, sorted: bool, desc: string }
+            const arr = arrInput.slice();
+            const steps = [];
+            const n = arr.length;
+            for (let i = 0; i < n - 1; i++) {
+                let swapped = false;
+                for (let j = 0; j < n - i - 1; j++) {
+                    const compare = [j, j + 1];
+                    let desc = `比较 a[${j}] = ${arr[j]} 与 a[${j+1}] = ${arr[j+1]}`;
+                    if (arr[j] > arr[j+1]) {
+                        // 交换
+                        [arr[j], arr[j+1]] = [arr[j+1], arr[j]];
+                        desc += ` → 交换 (${arr[j+1]} 与 ${arr[j]})`;
+                        steps.push({ array: arr.slice(), compare, swapped: true, sorted: false, desc });
+                        swapped = true;
+                    } else {
+                        desc += ` → 无需交换`;
+                        steps.push({ array: arr.slice(), compare, swapped: false, sorted: false, desc });
+                    }
+                }
+                // 标记已排序尾部 (i 从0开始, 已排好 i+1 个)
+                if (i === n - 2) {
+                    // 最后一轮结束后全部有序
+                    steps.push({ array: arr.slice(), compare: [], swapped: false, sorted: true, desc: '🎉 排序完成！' });
+                } else {
+                    // 标记当前最大已到末尾 (但为了简化，我们只显示比较步骤)
+                }
+            }
+            // 如果数组长度<=1, 直接返回完成
+            if (n <= 1) {
+                steps.push({ array: arr.slice(), compare: [], swapped: false, sorted: true, desc: '🎉 排序完成 (长度≤1)' });
+            }
+            return steps;
+        }
+
+        // 纯函数验证: 返回排序后的数组
+        window.__verify__ = function(input) {
+            if (!Array.isArray(input)) return [];
+            const arr = input.slice();
+            for (let i = 0; i < arr.length - 1; i++) {
+                for (let j = 0; j < arr.length - i - 1; j++) {
+                    if (arr[j] > arr[j+1]) {
+                        [arr[j], arr[j+1]] = [arr[j+1], arr[j]];
+                    }
+                }
+            }
+            return arr;
+        };
+
+        // 测试用例 (典型 + 边界)
+        window.__TEST_CASES__ = [
+            { input: [5, 3, 8, 1, 2], expected: [1, 2, 3, 5, 8] },
+            { input: [10, -2, 7, 3], expected: [-2, 3, 7, 10] },
+            { input: [], expected: [] },
+            { input: [42], expected: [42] }
+        ];
+
+        // ---------- 可视化状态 ----------
+        let currentArray = [];
+        let steps = [];
+        let currentStepIndex = 0;  // 当前展示的步骤索引 (0 ~ steps.length-1)
+        let sortedFlag = false;
+
+        // DOM 元素
+        const barsContainer = document.getElementById('bars-container');
+        const explainText = document.getElementById('explain-text');
+        const stepCounter = document.getElementById('step-counter');
+        const sizeInput = document.getElementById('array-size');
+        const btnReset = document.getElementById('btn-reset');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnStep = document.getElementById('btn-step');
+        const btnNext = document.getElementById('btn-next');
+
+        // 生成随机数组
+        function generateRandomArray(length) {
+            const arr = [];
+            for (let i = 0; i < length; i++) {
+                arr.push(Math.floor(Math.random() * 90) + 10); // 10~99
+            }
+            return arr;
+        }
+
+        // 重置并生成新数据
+        function resetWithNewArray() {
+            let size = parseInt(sizeInput.value, 10);
+            if (isNaN(size) || size < 2) size = 2;
+            if (size > 12) size = 12;
+            sizeInput.value = size;
+            currentArray = generateRandomArray(size);
+            // 生成步骤
+            steps = bubbleSortSteps(currentArray);
+            currentStepIndex = 0;
+            sortedFlag = false;
+            // 如果步骤为空 (不可能, 但防御)
+            if (steps.length === 0) {
+                steps = [{ array: currentArray.slice(), compare: [], swapped: false, sorted: true, desc: '完成' }];
+            }
+            renderStep(currentStepIndex);
+        }
+
+        // 根据索引渲染步骤
+        function renderStep(index) {
+            if (!steps.length) return;
+            if (index < 0) index = 0;
+            if (index >= steps.length) index = steps.length - 1;
+            currentStepIndex = index;
+
+            const step = steps[index];
+            const arr = step.array;
+            const compare = step.compare || [];
+            const sorted = step.sorted;
+
+            // 更新柱状图
+            barsContainer.innerHTML = '';
+            const maxVal = Math.max(...arr, 10);
+            arr.forEach((val, idx) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                const heightPercent = (val / maxVal) * 100;
+                bar.style.height = (heightPercent * 2.2) + 'px'; // 缩放
+                bar.style.minHeight = '8px';
+                const label = document.createElement('span');
+                label.className = 'value-label';
+                label.textContent = val;
+                bar.appendChild(label);
+                // 高亮逻辑
+                if (compare.includes(idx)) {
+                    if (step.swapped) {
+                        bar.classList.add('swap');
+                    } else {
+                        bar.classList.add('compare');
+                    }
+                }
+                if (sorted) {
+                    bar.classList.add('sorted');
+                }
+                barsContainer.appendChild(bar);
+            });
+
+            // 更新讲解
+            let desc = step.desc || '';
+            if (sorted) {
+                explainText.innerHTML = `✅ <span class="step-indicator">完成</span> ${desc}`;
+            } else {
+                explainText.innerHTML = `<span class="step-indicator">第 ${index+1} 步</span> ${desc}`;
+            }
+            stepCounter.textContent = `${index+1} / ${steps.length}`;
+        }
+
+        // 事件绑定
+        btnStep.addEventListener('click', function() {
+            if (steps.length === 0) return;
+            // 如果当前是最后一步，再点击单步执行则重置到第一步? 规范: 单步执行推进算法一步
+            if (currentStepIndex < steps.length - 1) {
+                renderStep(currentStepIndex + 1);
+            } else {
+                // 已经到最后，可以重置到开始 (或者不动)
+                // 为了教学，点击单步执行如果到最后则回到第一步重新开始
+                renderStep(0);
+            }
+        });
+
+        btnNext.addEventListener('click', function() {
+            if (currentStepIndex < steps.length - 1) {
+                renderStep(currentStepIndex + 1);
+            } else {
+                // 停留在最后
+                renderStep(steps.length - 1);
+            }
+        });
+
+        btnPrev.addEventListener('click', function() {
+            if (currentStepIndex > 0) {
+                renderStep(currentStepIndex - 1);
+            } else {
+                renderStep(0);
+            }
+        });
+
+        btnReset.addEventListener('click', function() {
+            resetWithNewArray();
+        });
+
+        sizeInput.addEventListener('change', function() {
+            let val = parseInt(sizeInput.value, 10);
+            if (isNaN(val) || val < 2) val = 2;
+            if (val > 12) val = 12;
+            sizeInput.value = val;
+            resetWithNewArray();
+        });
+
+        // 初始化
+        resetWithNewArray();
+
+        // 额外: 确保窗口加载后无错误
+        window.addEventListener('load', function() {
+            // 已经初始化
+        });
+    })();
+</script>
+</body>
+</html>

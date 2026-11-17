@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>样品 B · 暗色科技风 — AlgoAgent 前端重构</title>
+<style>
+/* ============ 样品 B：暗色科技风 ============ */
+/* 关键词：深蓝底 / 霓虹青强调 / 玻璃拟态卡片 / 发光边框 / 极客感 */
+:root {
+  --bg-0: #070B14;
+  --bg-1: #0B1220;
+  --bg-2: #101A2C;
+  --glass: rgba(20,30,50,.55);
+  --line: rgba(94,124,170,.22);
+  --neon: #00E5FF;
+  --neon-2: #7C5CFF;
+  --grad: linear-gradient(135deg, #00E5FF 0%, #7C5CFF 100%);
+  --text-1: #E8EFF9;
+  --text-2: #8CA0BE;
+  --text-3: #5A6C8C;
+  --ok: #2DD4A7;
+  --warn: #FFB347;
+  --err: #FF6B81;
+  --glow: 0 0 24px rgba(0,229,255,.18);
+  --radius: 14px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Inter","PingFang SC","Microsoft YaHei",system-ui,sans-serif; background:#060910; color:var(--text-1); font-size:14px; line-height:1.6;}
+
+.doc-bar { background:#0D1424; border-bottom:1px solid var(--line); padding:14px 28px; position:sticky; top:0; z-index:99; display:flex; align-items:center;}
+.doc-bar h1 { font-size:16px; display:inline; margin-right:16px;}
+.doc-bar .tag { display:inline-block; background:var(--grad); color:#06131C; padding:2px 10px; border-radius:20px; font-size:12px; margin-right:16px; font-weight:700;}
+.doc-bar a { color:var(--text-2); text-decoration:none; margin:0 10px; font-size:13px;}
+.doc-bar a:hover { color:var(--neon); }
+.doc-bar .meta { margin-left:auto; color:var(--text-3); font-size:12px;}
+section { padding:48px 28px 64px; background:#060910;}
+section.alt { background:var(--bg-0); }
+.sec-title { text-align:center; margin-bottom:28px;}
+.sec-title h2 { font-size:18px; color:var(--text-1);}
+.sec-title h2 b { background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.sec-title p { color:var(--text-3); font-size:13px; margin-top:4px;}
+.frame { width:1200px; max-width:96vw; margin:0 auto; border-radius:20px; overflow:hidden; border:1px solid var(--line); background:var(--bg-1); box-shadow:0 24px 60px rgba(0,0,0,.5), var(--glow);}
+
+/* ============ 1. 登录页 ============ */
+.login-shot { height:560px; position:relative; display:flex; align-items:center; justify-content:center; background:
+  radial-gradient(700px 360px at 20% -5%, rgba(0,229,255,.10), transparent 60%),
+  radial-gradient(700px 400px at 90% 110%, rgba(124,92,255,.12), transparent 60%),
+  var(--bg-0);}
+.login-shot .stars { position:absolute; inset:0; background-image:radial-gradient(1px 1px at 12% 22%, rgba(232,239,249,.5), transparent),radial-gradient(1px 1px at 78% 12%, rgba(0,229,255,.55), transparent),radial-gradient(1.5px 1.5px at 42% 72%, rgba(124,92,255,.5), transparent),radial-gradient(1px 1px at 88% 62%, rgba(232,239,249,.4), transparent),radial-gradient(1px 1px at 30% 88%, rgba(0,229,255,.4), transparent); opacity:.8;}
+.login-card { width:400px; background:var(--glass); backdrop-filter:blur(16px); border:1px solid var(--line); border-radius:20px; padding:36px 40px 30px; position:relative; box-shadow:0 20px 50px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06);}
+.login-card::before { content:""; position:absolute; top:-1px; left:24px; right:24px; height:1px; background:linear-gradient(90deg, transparent, rgba(0,229,255,.6), transparent);}
+.login-logo { width:52px; height:52px; border-radius:14px; background:var(--grad); display:flex; align-items:center; justify-content:center; color:#06131C; font-weight:800; font-size:24px; box-shadow:0 0 28px rgba(0,229,255,.45); margin-bottom:16px;}
+.login-card h3 { font-size:22px; letter-spacing:.5px;}
+.login-card .sub { color:var(--text-2); font-size:13px; margin:6px 0 22px;}
+.tab-row { display:flex; background:rgba(8,14,26,.7); border:1px solid var(--line); border-radius:11px; padding:4px; margin-bottom:20px;}
+.tab-row .tab { flex:1; text-align:center; padding:8px 0; font-size:13px; border-radius:8px; color:var(--text-2);}
+.tab-row .tab.on { background:linear-gradient(135deg, rgba(0,229,255,.16), rgba(124,92,255,.16)); color:var(--neon); font-weight:600; border:1px solid rgba(0,229,255,.3);}
+.field { margin-bottom:14px;}
+.field label { display:block; font-size:12px; color:var(--text-2); margin-bottom:6px;}
+.field .inp { width:100%; padding:11px 14px; border:1.5px solid var(--line); border-radius:11px; font-size:14px; color:var(--text-3); background:rgba(8,14,26,.6);}
+.field .inp.focus { border-color:var(--neon); color:var(--text-1); box-shadow:0 0 0 3px rgba(0,229,255,.12);}
+.btn-neon { width:100%; padding:12px; border:none; border-radius:11px; background:var(--grad); color:#06131C; font-size:15px; font-weight:700; cursor:pointer; box-shadow:0 0 24px rgba(0,229,255,.4); margin-top:6px;}
+.login-hint { text-align:center; color:var(--text-3); font-size:12px; margin-top:16px;}
+
+/* ============ 2. 工作台 ============ */
+.app-shot { display:flex; flex-direction:column; height:720px;}
+.app-header { height:58px; background:rgba(13,20,36,.85); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); display:flex; align-items:center; padding:0 22px; gap:26px; flex-shrink:0;}
+.brand { display:flex; align-items:center; gap:10px;}
+.brand .logo { width:34px; height:34px; border-radius:10px; background:var(--grad); color:#06131C; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:16px; box-shadow:0 0 18px rgba(0,229,255,.5);}
+.brand b { font-size:16px;}
+.brand span { color:var(--text-3); font-size:12px; display:block; margin-top:-3px;}
+.nav { display:flex; gap:4px;}
+.nav a { padding:7px 16px; border-radius:9px; color:var(--text-2); text-decoration:none; font-size:13.5px;}
+.nav a.on { background:linear-gradient(135deg, rgba(0,229,255,.14), rgba(124,92,255,.14)); color:var(--neon); font-weight:600; border:1px solid rgba(0,229,255,.28);}
+.spacer { flex:1;}
+.user-chip { display:flex; align-items:center; gap:10px; padding:5px 12px 5px 6px; border-radius:30px; border:1px solid var(--line); background:rgba(8,14,26,.5);}
+.avatar { width:32px; height:32px; border-radius:50%; background:var(--grad); color:#06131C; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px;}
+.user-chip .name { font-size:13px; font-weight:600; line-height:1.15; color:var(--text-1);}
+.user-chip .role { font-size:11px; color:var(--neon); line-height:1.1;}
+.chev { color:var(--text-3); font-size:11px;}
+
+.app-body { flex:1; display:flex; min-height:0;}
+
+/* 左：对话 */
+.chat-pane { width:420px; border-right:1px solid var(--line); display:flex; flex-direction:column; background:var(--bg-1); flex-shrink:0;}
+.chat-scroll { flex:1; overflow:hidden; padding:20px 18px 12px;}
+.msg { display:flex; gap:10px; margin-bottom:18px; align-items:flex-start;}
+.msg .av { width:30px; height:30px; border-radius:9px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:13px;}
+.msg.ai .av { background:var(--grad); color:#06131C; box-shadow:0 0 14px rgba(0,229,255,.4);}
+.msg.me { flex-direction:row-reverse;}
+.msg.me .av { background:#1B2740; color:var(--text-2); border:1px solid var(--line);}
+.bubble { max-width:82%; padding:10px 14px; border-radius:13px; font-size:13.5px;}
+.msg.ai .bubble { background:var(--glass); border:1px solid var(--line); border-top-left-radius:4px; backdrop-filter:blur(8px);}
+.msg.me .bubble { background:linear-gradient(135deg, rgba(0,229,255,.22), rgba(124,92,255,.22)); border:1px solid rgba(0,229,255,.35); border-top-right-radius:4px; color:var(--text-1);}
+.clarify-card { background:var(--glass); border:1px solid var(--line); border-top-left-radius:4px; border-radius:13px; padding:12px 14px; max-width:86%; backdrop-filter:blur(8px);}
+.clarify-card .head { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--neon); font-weight:600; margin-bottom:8px;}
+.clarify-card ol { margin-left:18px; font-size:13px; color:var(--text-1);}
+.clarify-card ol li { margin:3px 0;}
+.clarify-card .ans { margin-top:10px; border-top:1px dashed var(--line); padding-top:8px; font-size:12.5px; color:var(--text-2);}
+.clarify-card .ans b { color:var(--ok);}
+.gen-card { max-width:86%; background:var(--glass); border:1px solid var(--line); border-top-left-radius:4px; border-radius:13px; padding:12px 14px; backdrop-filter:blur(8px);}
+.gen-card .t { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--text-1);}
+.pill { font-size:11px; padding:2px 9px; border-radius:20px; font-weight:600;}
+.pill.repair { background:rgba(255,179,71,.12); color:var(--warn); border:1px solid rgba(255,179,71,.3);}
+.gen-card .prog { margin-top:8px; display:flex; align-items:center; gap:9px; font-size:12.5px; color:var(--text-2);}
+.spinner { width:14px; height:14px; border:2px solid rgba(0,229,255,.2); border-top-color:var(--neon); border-radius:50%; animation:spin 1s linear infinite;}
+@keyframes spin { to { transform:rotate(360deg);} }
+.bar { height:5px; background:#0D1826; border-radius:6px; overflow:hidden; flex:1;}
+.bar i { display:block; height:100%; width:64%; background:var(--grad); border-radius:6px; box-shadow:0 0 10px rgba(0,229,255,.6);}
+.done-card { max-width:86%; background:rgba(45,212,167,.08); border:1px solid rgba(45,212,167,.4); border-top-left-radius:4px; border-radius:13px; padding:11px 14px; color:var(--ok); font-size:13.5px; font-weight:600; display:flex; align-items:center; gap:8px;}
+
+.chat-input { border-top:1px solid var(--line); padding:14px 16px 16px; background:rgba(8,14,26,.4);}
+.input-box { border:1.5px solid var(--line); border-radius:13px; padding:10px 12px 8px; background:rgba(8,14,26,.6);}
+.input-box .ph { color:var(--text-3); font-size:13px; min-height:38px;}
+.input-foot { display:flex; justify-content:space-between; align-items:center; margin-top:6px;}
+.tip { font-size:11px; color:var(--text-3);}
+.send-btn { border:none; background:var(--grad); color:#06131C; padding:8px 18px; border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; box-shadow:0 0 16px rgba(0,229,255,.35);}
+
+/* 右：舞台 */
+.stage-pane { flex:1; display:flex; flex-direction:column; min-width:0; background:var(--bg-0); position:relative;}
+.stage-pane::before { content:""; position:absolute; inset:0; background:radial-gradient(600px 300px at 70% 20%, rgba(124,92,255,.08), transparent 60%); pointer-events:none;}
+.stage-steps { padding:16px 26px 6px; flex-shrink:0;}
+.steps { display:flex; align-items:flex-start;}
+.step { flex:1; text-align:center; position:relative;}
+.step .dot { width:30px; height:30px; border-radius:50%; background:var(--bg-2); border:1.5px solid var(--line); color:var(--text-3); display:flex; align-items:center; justify-content:center; margin:0 auto 7px; font-size:13px; position:relative; z-index:2;}
+.step .lbl { font-size:12.5px; color:var(--text-3);}
+.step .sub { font-size:11px; color:var(--text-3); margin-top:1px;}
+.step.done .dot { background:var(--grad); border-color:transparent; color:#06131C; box-shadow:0 0 12px rgba(0,229,255,.4);}
+.step.done .lbl { color:var(--text-1); font-weight:600;}
+.step.cur .dot { border-color:var(--neon); color:var(--neon); box-shadow:0 0 0 4px rgba(0,229,255,.15), 0 0 20px rgba(0,229,255,.5);}
+.step.cur .lbl { color:var(--neon); font-weight:700;}
+.step.cur .sub { color:var(--warn);}
+.step:not(:last-child)::after { content:""; position:absolute; top:15px; left:calc(50% + 20px); width:calc(100% - 40px); height:1.5px; background:var(--line); z-index:1;}
+.step.done:not(:last-child)::after { background:linear-gradient(90deg, var(--neon), var(--neon-2));}
+.badge-attempt { position:absolute; top:-6px; right:calc(50% - 26px); background:var(--warn); color:#241300; font-size:10px; padding:1px 7px; border-radius:12px; font-weight:800; z-index:3; box-shadow:0 0 12px rgba(255,179,71,.5);}
+
+.stage-wrap { flex:1; margin:12px 26px 24px; border-radius:18px; background:var(--glass); border:1px solid var(--line); backdrop-filter:blur(14px); display:flex; flex-direction:column; overflow:hidden; min-height:0; box-shadow:inset 0 1px 0 rgba(255,255,255,.05);}
+.stage-toolbar { height:52px; border-bottom:1px solid var(--line); display:flex; align-items:center; padding:0 18px; gap:10px; flex-shrink:0;}
+.stage-toolbar .title { font-size:14px; font-weight:700;}
+.stage-toolbar .title small { display:block; font-size:11.5px; color:var(--text-3); font-weight:400; margin-top:-2px;}
+.stage-toolbar .grow { flex:1;}
+.tbtn { border:1px solid var(--line); background:rgba(8,14,26,.5); color:var(--text-1); padding:7px 14px; border-radius:9px; font-size:12.5px; cursor:pointer;}
+.tbtn:hover { border-color:rgba(0,229,255,.4);}
+.tbtn.primary { background:var(--grad); color:#06131C; border:none; font-weight:700; box-shadow:0 0 18px rgba(0,229,255,.35);}
+.tbtn.ghost { border:none; background:transparent; color:var(--text-2);}
+
+/* 假动画 */
+.viz { flex:1; display:flex; align-items:flex-end; justify-content:center; gap:14px; padding:30px 40px 16px; min-height:0;}
+.col { width:44px; border-radius:8px 8px 3px 3px; background:#1B2740; border:1px solid var(--line); position:relative;}
+.col .v { color:var(--text-3); font-size:11px; margin-top:-20px; font-weight:600; text-align:center; width:100%; position:absolute;}
+.col.hi { background:linear-gradient(180deg, var(--neon), rgba(0,229,255,.25)); border-color:rgba(0,229,255,.6); box-shadow:0 0 18px rgba(0,229,255,.5);}
+.col.hi .v { color:var(--neon);}
+.col.prev { background:rgba(255,179,71,.25); border-color:rgba(255,179,71,.5);}
+.col.prev .v { color:var(--warn);}
+.viz-note { text-align:center; color:var(--text-2); font-size:12.5px; padding-bottom:16px;}
+.viz-note b { color:var(--neon);}
+.ctrl-row { display:flex; gap:8px; justify-content:center; padding:0 20px 20px;}
+.cbtn { padding:8px 18px; border-radius:9px; border:1px solid var(--line); background:rgba(8,14,26,.5); font-size:12.5px; color:var(--text-2); cursor:pointer;}
+.cbtn.main { border-color:var(--neon); color:var(--neon); font-weight:700; box-shadow:0 0 12px rgba(0,229,255,.2);}
+
+/* ============ 3. 我的作品 ============ */
+.works-shot { min-height:560px; display:flex; flex-direction:column;}
+.works-head { padding:26px 32px 6px;}
+.works-head h3 { font-size:19px;}
+.works-head p { color:var(--text-2); font-size:13px; margin-top:4px;}
+.works-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; padding:20px 32px 32px;}
+.work-card { background:var(--glass); border:1px solid var(--line); border-radius:16px; padding:18px; transition:.25s; backdrop-filter:blur(10px);}
+.work-card:hover { transform:translateY(-4px); border-color:rgba(0,229,255,.45); box-shadow:0 0 30px rgba(0,229,255,.15);}
+.wtag { font-size:11px; padding:3px 10px; border-radius:20px; font-weight:600;}
+.wtag.ok { background:rgba(45,212,167,.1); color:var(--ok); border:1px solid rgba(45,212,167,.35);}
+.wtag.fail { background:rgba(255,107,129,.09); color:var(--err); border:1px solid rgba(255,107,129,.3);}
+.work-card h4 { font-size:14.5px; line-height:1.45; min-height:42px; margin:10px 0 0;}
+.wmeta { color:var(--text-3); font-size:12px; margin:8px 0 14px; display:flex; gap:12px;}
+.wacts { display:flex; gap:8px;}
+.wacts .tbtn { flex:1;}
+.thumb { height:90px; border-radius:11px; margin-bottom:12px; background:rgba(8,14,26,.5); border:1px solid var(--line); display:flex; align-items:flex-end; justify-content:center; gap:7px; padding:12px 20px;}
+.thumb i { width:12px; border-radius:4px 4px 2px 2px; background:#1B2740; border:1px solid var(--line);}
+.thumb i:nth-child(2) { background:var(--neon); box-shadow:0 0 10px rgba(0,229,255,.5);}
+.thumb i:nth-child(5) { background:var(--neon-2); box-shadow:0 0 10px rgba(124,92,255,.5);}
+
+/* ============ 4. 分享弹窗 ============ */
+.share-shot { height:560px; position:relative; display:flex; align-items:center; justify-content:center; background:var(--bg-0);}
+.overlay { position:absolute; inset:0; background:rgba(4,7,12,.72); backdrop-filter:blur(5px);}
+.share-dialog { position:relative; width:440px; background:var(--glass); backdrop-filter:blur(18px); border:1px solid var(--line); border-radius:20px; padding:26px 28px 24px; box-shadow:0 24px 60px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06);}
+.share-dialog::before { content:""; position:absolute; top:-1px; left:24px; right:24px; height:1px; background:linear-gradient(90deg, transparent, rgba(0,229,255,.7), transparent);}
+.share-dialog h3 { font-size:17px; display:flex; align-items:center; gap:9px;}
+.share-dialog .desc { color:var(--text-2); font-size:12.5px; margin:6px 0 18px;}
+.validity-row { display:flex; gap:8px; margin-bottom:18px;}
+.vopt { flex:1; text-align:center; padding:10px 0; border:1.5px solid var(--line); border-radius:11px; font-size:13px; color:var(--text-2); cursor:pointer; background:rgba(8,14,26,.4);}
+.vopt.on { border-color:var(--neon); color:var(--neon); font-weight:700; background:rgba(0,229,255,.08); box-shadow:0 0 14px rgba(0,229,255,.15);}
+.share-result { display:flex; flex-direction:column; align-items:center; gap:14px;}
+.qr { width:170px; height:170px; border-radius:14px; border:1px solid var(--line); padding:12px; background:#E8EFF9;
+  background-image:linear-gradient(#0B1220 8px, transparent 8px),linear-gradient(90deg, #0B1220 8px, transparent 8px);
+  background-size:34px 34px; background-position:-8px -8px; box-shadow:0 0 24px rgba(0,229,255,.25);}
+.url-row { width:100%; display:flex; border:1.5px solid var(--line); border-radius:11px; overflow:hidden; background:rgba(8,14,26,.5);}
+.url-row .u { flex:1; padding:10px 14px; font-size:12.5px; color:var(--text-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.url-row .cp { border:none; background:var(--grad); color:#06131C; padding:0 20px; font-size:12.5px; font-weight:700; cursor:pointer;}
+.share-note { font-size:11.5px; color:var(--text-3); text-align:center;}
+
+.footer-note { text-align:center; color:var(--text-3); font-size:12px; padding:26px 0 34px; background:#060910;}
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <span class="tag">样品 B</span><h1>暗色科技风</h1>
+  <a href="#login">登录页</a><a href="#work">工作台</a><a href="#works">我的作品</a><a href="#share">分享弹窗</a>
+  <span class="meta">深蓝底 · 霓虹青强调 · 玻璃拟态 · 截图效果亮眼</span>
+</div>
+
+<!-- 1. 登录页 -->
+<section id="login">
+  <div class="sec-title"><h2>登录 / 注册页</h2><p>星点背景 + 玻璃拟态卡片 + 霓虹渐变按钮</p></div>
+  <div class="frame login-shot">
+    <div class="stars"></div>
+    <div class="login-card">
+      <div class="login-logo">◆</div>
+      <h3>AlgoAgent</h3>
+      <div class="sub">教师的教学智能体 · 算法可视化页面生成</div>
+      <div class="tab-row"><div class="tab on">登 录</div><div class="tab">注册（即可用）</div></div>
+      <div class="field"><label>用户名</label><div class="inp focus">teacher01</div></div>
+      <div class="field"><label>密码</label><div class="inp">••••••••••</div></div>
+      <button class="btn-neon">登 录</button>
+      <div class="login-hint">注册即可生成与管理，不设身份门槛</div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. 工作台 -->
+<section id="work" class="alt">
+  <div class="sec-title"><h2>教师工作台（核心界面）</h2><p>左对话 · 右舞台 · 阶段步骤条霓虹流转 · 分享在作品工具栏</p></div>
+  <div class="frame app-shot">
+    <div class="app-header">
+      <div class="brand"><div class="logo">◆</div><div><b>AlgoAgent</b><span>算法教学智能体</span></div></div>
+      <nav class="nav"><a class="on">💬 备课对话</a><a>🗂 我的作品</a></nav>
+      <div class="spacer"></div>
+      <div class="user-chip"><div class="avatar">张</div><div><div class="name">张老师</div><div class="role">管理员</div></div><span class="chev">▾</span></div>
+    </div>
+    <div class="app-body">
+      <div class="chat-pane">
+        <div class="chat-scroll">
+          <div class="msg me"><div class="av">张</div><div class="bubble">帮我生成一个冒泡排序的教学动画</div></div>
+          <div class="msg ai"><div class="av">◆</div>
+            <div class="clarify-card">
+              <div class="head">✦ 开始生成前，我想先确认几点</div>
+              <ol><li>面向哪个学段的学生？</li><li>演示形式希望哪种？</li><li>数组默认多少个元素？</li></ol>
+              <div class="ans">张老师：大二专业课 · 并排对比 · 8 个元素 <b>✓</b></div>
+            </div>
+          </div>
+          <div class="msg ai"><div class="av">◆</div>
+            <div class="gen-card">
+              <div class="t">第 2/3 次生成 <span class="pill repair">⟳ 自修复中</span></div>
+              <div class="prog"><div class="spinner"></div><div class="bar"><i></i></div><span>已接收 8.3 KB · 102s</span></div>
+            </div>
+          </div>
+          <div class="msg ai"><div class="av">◆</div><div class="done-card">✓ 校验通过，页面已在右侧展示（2 次尝试 · 218s）</div></div>
+        </div>
+        <div class="chat-input">
+          <div class="input-box">
+            <div class="ph">描述教学任务，如：为大二生成 Dijkstra 教学页面，突出松弛操作…</div>
+            <div class="input-foot"><span class="tip">Enter 发送</span><button class="send-btn">发送任务</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="stage-pane">
+        <div class="stage-steps">
+          <div class="steps">
+            <div class="step done"><div class="dot">✓</div><div class="lbl">澄清</div></div>
+            <div class="step done"><div class="dot">✓</div><div class="lbl">生成</div></div>
+            <div class="step done"><div class="dot">✓</div><div class="lbl">验证</div></div>
+            <div class="step cur"><div class="dot">⟳</div><span class="badge-attempt">第 2 次</span><div class="lbl">自修复</div><div class="sub">AI 正在修复 JS 报错</div></div>
+            <div class="step"><div class="dot">5</div><div class="lbl">完成</div></div>
+          </div>
+        </div>
+        <div class="stage-wrap">
+          <div class="stage-toolbar">
+            <div class="title">冒泡排序 · 单轮状态对比<small>btn-prev / 单步执行 / btn-next</small></div>
+            <div class="grow"></div>
+            <button class="tbtn ghost">↗ 新窗口打开</button>
+            <button class="tbtn">💾 保存</button>
+            <button class="tbtn primary">🔗 分享给学生</button>
+          </div>
+          <div class="viz">
+            <div class="col prev" style="height:52%"><span class="v">5</span></div>
+            <div class="col hi" style="height:88%"><span class="v">8</span></div>
+            <div class="col hi" style="height:30%"><span class="v">3</span></div>
+            <div class="col" style="height:70%"><span class="v">6</span></div>
+            <div class="col" style="height:100%"><span class="v">9</span></div>
+            <div class="col" style="height:42%"><span class="v">4</span></div>
+            <div class="col" style="height:60%"><span class="v">7</span></div>
+            <div class="col" style="height:20%"><span class="v">2</span></div>
+          </div>
+          <div class="viz-note">第 <b>3</b> 轮 · 比较 a[1] 与 a[2] → 发生交换（<span style="color:var(--warn)">上一轮橙</span> → <b>当前霓虹青</b>）</div>
+          <div class="ctrl-row"><button class="cbtn">⏮ 上一步</button><button class="cbtn main">▶ 单步执行</button><button class="cbtn">下一步 ⏭</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 我的作品 -->
+<section id="works">
+  <div class="sec-title"><h2>我的作品（独立页面）</h2><p>玻璃卡片网格 · hover 霓虹浮起</p></div>
+  <div class="frame works-shot">
+    <div class="app-header">
+      <div class="brand"><div class="logo">◆</div><div><b>AlgoAgent</b><span>算法教学智能体</span></div></div>
+      <nav class="nav"><a>💬 备课对话</a><a class="on">🗂 我的作品</a></nav>
+      <div class="spacer"></div>
+      <div class="user-chip"><div class="avatar">张</div><div><div class="name">张老师</div><div class="role">管理员</div></div><span class="chev">▾</span></div>
+    </div>
+    <div class="works-head"><h3>我的作品</h3><p>共 3 件 · 覆盖式模型：保存后分享链接自动更新</p></div>
+    <div class="works-grid">
+      <div class="work-card">
+        <div class="thumb"><i style="height:40%"></i><i style="height:85%"></i><i style="height:60%"></i><i style="height:30%"></i><i style="height:95%"></i><i style="height:70%"></i></div>
+        <h4>冒泡排序 · 单轮状态对比（大二专业课）<span class="wtag ok" style="float:right">✓ 已通过</span></h4>
+        <div class="wmeta"><span>🕘 今天 10:31</span><span>⟳ 2 次自修复</span></div>
+        <div class="wacts"><button class="tbtn">👁 预览</button><button class="tbtn primary">🔗 分享</button></div>
+      </div>
+      <div class="work-card">
+        <div class="thumb"><i style="height:60%"></i><i style="height:95%"></i><i style="height:40%"></i><i style="height:75%"></i><i style="height:55%"></i><i style="height:88%"></i></div>
+        <h4>Dijkstra 最短路径 · 松弛过程演示<span class="wtag ok" style="float:right">✓ 已通过</span></h4>
+        <div class="wmeta"><span>🕘 昨天 21:07</span><span>⚡ 一次通过</span></div>
+        <div class="wacts"><button class="tbtn">👁 预览</button><button class="tbtn primary">🔗 分享</button></div>
+      </div>
+      <div class="work-card">
+        <div class="thumb"><i style="height:50%"></i><i style="height:80%"></i><i style="height:65%"></i><i style="height:35%"></i><i style="height:90%"></i><i style="height:58%"></i></div>
+        <h4>二分查找 · 查找范围收缩可视化<span class="wtag fail" style="float:right">✗ 未通过</span></h4>
+        <div class="wmeta"><span>🕘 昨天 20:12</span><span>⟳ 3 次未修复</span></div>
+        <div class="wacts"><button class="tbtn" disabled>👁 预览</button><button class="tbtn">🔄 重新生成</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. 分享弹窗 -->
+<section id="share" class="alt">
+  <div class="sec-title"><h2>分享弹窗（从作品工具栏唤起）</h2><p>霓虹三选 · 二维码 + 链接复制</p></div>
+  <div class="frame share-shot">
+    <div class="overlay"></div>
+    <div class="share-dialog">
+      <h3>🔗 分享给学生</h3>
+      <div class="desc">创建免登录分享链接，学生打开即用（无需注册）</div>
+      <div class="validity-row"><div class="vopt">1 天</div><div class="vopt on">7 天</div><div class="vopt">永久</div></div>
+      <div class="share-result">
+        <div class="qr"></div>
+        <div class="url-row"><div class="u">https://algoagent.example.cn/s/xK9fPq2R</div><button class="cp">复制</button></div>
+        <div class="share-note">ⓘ 作品覆盖保存后，此链接将自动展示最新内容</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="footer-note">样品 B · 暗色科技风 · 静态假数据演示 · 确认风格后将按此实现正式前端</div>
+</body>
+</html>

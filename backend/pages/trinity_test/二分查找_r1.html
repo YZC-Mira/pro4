@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二分查找 · 可视化教学</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f4f7fc;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .card {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 20, 50, 0.15);
+            padding: 28px 30px 35px;
+            transition: all 0.2s;
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin: 0 0 4px 0;
+            color: #0b2b4a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+        }
+        .subtitle {
+            color: #2c5779;
+            font-weight: 400;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            border-left: 4px solid #3a7ca5;
+            padding-left: 14px;
+            background: #eaf1f9;
+            border-radius: 0 12px 12px 0;
+            line-height: 1.5;
+        }
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 18px 25px;
+            background: #eef4fa;
+            padding: 16px 20px;
+            border-radius: 40px;
+            margin-bottom: 20px;
+        }
+        .param-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            color: #1a3d5c;
+        }
+        .param-group input {
+            width: 70px;
+            padding: 8px 10px;
+            border: 1px solid #b6cde0;
+            border-radius: 30px;
+            font-weight: 600;
+            text-align: center;
+            background: white;
+            transition: 0.2s;
+        }
+        .param-group input:focus {
+            outline: 2px solid #3a7ca5;
+            border-color: transparent;
+        }
+        button {
+            background: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid #cbdbe9;
+            color: #1a3d5c;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        button:hover {
+            background: #dbe9f5;
+            border-color: #7fa3c2;
+            transform: translateY(-1px);
+        }
+        button:active {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+        #btn-prev, #btn-step, #btn-next {
+            min-width: 90px;
+            justify-content: center;
+        }
+        #btn-step {
+            background: #1d5b8e;
+            color: white;
+            border-color: #1d5b8e;
+            box-shadow: 0 6px 12px rgba(29, 91, 142, 0.25);
+        }
+        #btn-step:hover {
+            background: #2a6da3;
+        }
+        .visual-area {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 20px 10px 20px 10px;
+            margin: 10px 0 15px 0;
+            border: 1px solid #dbe6f0;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .array-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0 20px 0;
+            min-height: 90px;
+            align-items: center;
+        }
+        .array-cell {
+            width: 60px;
+            height: 60px;
+            background: #eef2f6;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: #0b2b4a;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            position: relative;
+        }
+        .array-cell .index {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: #5f7d9a;
+            margin-bottom: 2px;
+        }
+        .array-cell .value {
+            line-height: 1.2;
+        }
+        .array-cell.low {
+            background: #ffe9a8;
+            border-color: #f5b942;
+            transform: scale(1.05);
+        }
+        .array-cell.mid {
+            background: #b8d9f5;
+            border-color: #2a7faa;
+            transform: scale(1.05);
+        }
+        .array-cell.high {
+            background: #fbc4c4;
+            border-color: #d14c4c;
+            transform: scale(1.05);
+        }
+        .array-cell.low.mid {
+            background: #d9c9a0;
+            border-color: #b57e2e;
+        }
+        .array-cell.mid.high {
+            background: #c9b0d9;
+            border-color: #8e5a9e;
+        }
+        .array-cell.low.high {
+            background: #e6c3a0;
+            border-color: #b45f2a;
+        }
+        .array-cell.low.mid.high {
+            background: #c7b5a0;
+            border-color: #8a6e4b;
+        }
+        .array-cell.found {
+            background: #b5e6b5;
+            border-color: #2e8b57;
+            box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.2);
+        }
+        .pointer-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 5px 0 0 0;
+            font-size: 0.85rem;
+            color: #2c5779;
+            font-weight: 500;
+        }
+        .pointer-legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+        .explanation-box {
+            background: #f0f6fd;
+            border-radius: 20px;
+            padding: 16px 20px;
+            margin: 15px 0 20px 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #0b2b4a;
+            border-left: 6px solid #3a7ca5;
+            min-height: 70px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .footer-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .target-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #eef4fa;
+            padding: 8px 18px;
+            border-radius: 40px;
+        }
+        .target-group input {
+            width: 80px;
+            padding: 8px 12px;
+            border-radius: 30px;
+            border: 1px solid #b6cde0;
+            font-weight: 600;
+            text-align: center;
+        }
+        .status-badge {
+            background: #1d5b8e;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .btn-reset {
+            background: #e9eef3;
+            border: 1px solid #b0c4d8;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>🔍 二分查找 · 可视化</h1>
+    <div class="subtitle">有序数组 · 每步高亮 low / mid / high 指针 · 观察搜索区间收缩</div>
+
+    <!-- 参数区 -->
+    <div class="control-panel">
+        <div class="param-group">
+            <label>📏 数组大小</label>
+            <input type="number" id="array-size" min="3" max="15" value="8" step="1">
+        </div>
+        <div class="param-group">
+            <label>🎯 目标值</label>
+            <input type="number" id="target-value" value="23">
+        </div>
+        <button id="btn-reset" class="btn-reset">🔄 重新生成</button>
+    </div>
+
+    <!-- 可视化主体 -->
+    <div class="visual-area">
+        <div id="array-container" class="array-container"></div>
+        <div class="pointer-legend">
+            <span><span class="legend-color" style="background:#ffe9a8; border:2px solid #f5b942;"></span> low</span>
+            <span><span class="legend-color" style="background:#b8d9f5; border:2px solid #2a7faa;"></span> mid</span>
+            <span><span class="legend-color" style="background:#fbc4c4; border:2px solid #d14c4c;"></span> high</span>
+            <span><span class="legend-color" style="background:#b5e6b5; border:2px solid #2e8b57;"></span> 命中</span>
+        </div>
+    </div>
+
+    <!-- 讲解区 -->
+    <div id="explanation" class="explanation-box">
+        👈 点击“单步执行”开始查找，或调整参数后重新生成。
+    </div>
+
+    <!-- 控件区 -->
+    <div class="footer-controls">
+        <div style="display: flex; gap: 12px;">
+            <button id="btn-prev">◀ 上一步</button>
+            <button id="btn-step">▶ 单步执行</button>
+            <button id="btn-next">下一步 ▶</button>
+        </div>
+        <div id="step-indicator" class="status-badge">步骤 0 / 0</div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- 核心算法 (纯函数) ----------
+        function binarySearchSteps(arr, target) {
+            // 返回步骤数组: [{low, mid, high, found, explanation}]
+            let low = 0, high = arr.length - 1;
+            const steps = [];
+            if (arr.length === 0) {
+                steps.push({ low: -1, mid: -1, high: -1, found: false, explanation: '数组为空，查找失败' });
+                return steps;
+            }
+            while (low <= high) {
+                const mid = Math.floor((low + high) / 2);
+                const explanation = `比较 arr[${mid}] = ${arr[mid]} 与目标 ${target}`;
+                steps.push({ low, mid, high, found: false, explanation });
+                if (arr[mid] === target) {
+                    steps.push({ low, mid, high, found: true, explanation: `✅ 找到目标 ${target}，索引 ${mid}` });
+                    return steps;
+                } else if (arr[mid] < target) {
+                    steps.push({ low: mid + 1, mid: -1, high, found: false, explanation: `arr[${mid}] < ${target}，收缩左边界 low = ${mid+1}` });
+                    low = mid + 1;
+                } else {
+                    steps.push({ low, mid: -1, high: mid - 1, found: false, explanation: `arr[${mid}] > ${target}，收缩右边界 high = ${mid-1}` });
+                    high = mid - 1;
+                }
+            }
+            steps.push({ low, mid: -1, high, found: false, explanation: `❌ 未找到目标 ${target}，区间为空` });
+            return steps;
+        }
+
+        // 暴露标准自检入口 (纯计算，返回最后结果)
+        window.__verify__ = function(input) {
+            // input: {arr: number[], target: number}
+            const arr = input.arr;
+            const target = input.target;
+            const steps = binarySearchSteps(arr, target);
+            const last = steps[steps.length - 1];
+            if (last.found) {
+                return { found: true, index: last.mid };
+            } else {
+                return { found: false, index: -1 };
+            }
+        };
+
+        // 自测用例 (典型 + 边界)
+        window.__TEST_CASES__ = [
+            { input: { arr: [1, 3, 5, 7, 9, 11], target: 7 }, expected: { found: true, index: 3 } },
+            { input: { arr: [2, 4, 6, 8, 10, 12, 14], target: 13 }, expected: { found: false, index: -1 } },
+            { input: { arr: [5], target: 5 }, expected: { found: true, index: 0 } },
+            { input: { arr: [], target: 1 }, expected: { found: false, index: -1 } },
+            { input: { arr: [1, 2, 3, 4, 5], target: 1 }, expected: { found: true, index: 0 } }
+        ];
+
+        // ---------- 可视化状态 ----------
+        let currentArray = [];
+        let target = 23;
+        let steps = [];
+        let currentStepIndex = 0;
+
+        // DOM 元素
+        const container = document.getElementById('array-container');
+        const explanationDiv = document.getElementById('explanation');
+        const stepIndicator = document.getElementById('step-indicator');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnStep = document.getElementById('btn-step');
+        const btnNext = document.getElementById('btn-next');
+        const btnReset = document.getElementById('btn-reset');
+        const sizeInput = document.getElementById('array-size');
+        const targetInput = document.getElementById('target-value');
+
+        // 生成有序数组 (等差递增)
+        function generateArray(size) {
+            const arr = [];
+            for (let i = 0; i < size; i++) {
+                arr.push(5 + i * 6);  // 5, 11, 17, 23, 29, ...
+            }
+            return arr;
+        }
+
+        // 重置并生成步骤
+        function resetAndGenerate() {
+            let size = parseInt(sizeInput.value, 10);
+            if (isNaN(size) || size < 1) size = 8;
+            if (size > 15) size = 15;
+            sizeInput.value = size;
+
+            let t = parseInt(targetInput.value, 10);
+            if (isNaN(t)) t = 23;
+            targetInput.value = t;
+            target = t;
+
+            currentArray = generateArray(size);
+            steps = binarySearchSteps(currentArray, target);
+            currentStepIndex = 0;
+            renderStep();
+        }
+
+        // 渲染当前步骤
+        function renderStep() {
+            if (!steps.length) return;
+            const step = steps[currentStepIndex];
+            // 更新数组视图
+            container.innerHTML = '';
+            for (let i = 0; i < currentArray.length; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'array-cell';
+                const idxSpan = document.createElement('div');
+                idxSpan.className = 'index';
+                idxSpan.textContent = i;
+                const valSpan = document.createElement('div');
+                valSpan.className = 'value';
+                valSpan.textContent = currentArray[i];
+                cell.appendChild(idxSpan);
+                cell.appendChild(valSpanapsed);
+
+                // 高亮逻辑
+                if (step.found && i === step.mid) {
+                    cell.classList.add('found');
+                } else {
+                    if (i === step.low) cell.classList.add('low');
+                    if (i === step.mid) cell.classList.add('mid');
+                    if (i === step.high) cell.classList.add('high');
+                }
+                container.appendChild(cell);
+            }
+
+            // 讲解文字
+            let msg = step.explanation;
+            if (step.found) {
+                msg = `🎯 步骤 ${currentStepIndex+1}: ${step.explanation}`;
+            } else {
+                msg = `步骤 ${currentStepIndex+1}: ${step.explanation}`;
+            }
+            explanationDiv.textContent = msg;
+
+            // 步骤指示器
+            stepIndicator.textContent = `步骤 ${currentStepIndex+1} / ${steps.length}`;
+
+            // 按钮状态
+            btnPrev.disabled = (currentStepIndex === 0);
+            btnNext.disabled = (currentStepIndex === steps.length - 1);
+            btnStep.disabled = (currentStepIndex === steps.length - 1);
+        }
+
+        // 事件绑定
+        btnStep.addEventListener('click', function() {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex++;
+                renderStep();
+            }
+        });
+
+        btnNext.addEventListener('click', function() {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex++;
+                renderStep();
+            }
+        });
+
+        btnPrev.addEventListener('click', function() {
+            if (currentStepIndex > 0) {
+                currentStepIndex--;
+                renderStep();
+            }
+        });
+
+        btnReset.addEventListener('click', function() {
+            resetAndGenerate();
+        });
+
+        // 输入变化时自动重置 (防抖简单处理)
+        sizeInput.addEventListener('change', function() {
+            resetAndGenerate();
+        });
+        targetInput.addEventListener('change', function() {
+            resetAndGenerate();
+        });
+
+        // 初始化
+        resetAndGenerate();
+
+        // 额外: 确保按钮初始状态正确
+        renderStep();
+    })();
+</script>
+</body>
+</html>

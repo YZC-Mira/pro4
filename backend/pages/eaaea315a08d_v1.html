@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冒泡排序可视化</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 24px 28px; }
+        h1 { font-size: 1.8rem; color: #1e293b; margin-bottom: 4px; }
+        .subtitle { color: #64748b; font-size: 0.95rem; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+        .control-panel { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 24px; background: #f8fafc; padding: 14px 18px; border-radius: 12px; }
+        .control-panel label { font-weight: 600; color: #334155; }
+        .control-panel input[type="number"] { width: 70px; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; }
+        .btn-group { display: flex; gap: 10px; margin-left: auto; }
+        .btn-group button { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; font-weight: 600; color: #1e293b; cursor: pointer; transition: all 0.15s; font-size: 0.9rem; }
+        .btn-group button:hover { background: #eef2f7; }
+        .btn-group button:active { transform: scale(0.97); }
+        #btn-step { background: #2563eb; border-color: #2563eb; color: white; }
+        #btn-step:hover { background: #1d4ed8; }
+        .visualization { display: flex; align-items: flex-end; gap: 8px; min-height: 220px; padding: 20px 0; margin: 20px 0; background: #f1f5f9; border-radius: 12px; justify-content: center; }
+        .bar { width: 45px; background: #3b82f6; border-radius: 6px 6px 0 0; transition: height 0.2s, background 0.2s; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; color: white; font-weight: 700; font-size: 1rem; padding-bottom: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .bar.highlight { background: #f59e0b; }
+        .bar.sorted { background: #10b981; }
+        .bar.compare { background: #ef4444; }
+        .explanation { background: #ffffff; border-left: 5px solid #3b82f6; padding: 14px 18px; border-radius: 8px; margin: 16px 0; font-size: 1.05rem; color: #0f172a; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+        .explanation strong { color: #1e40af; }
+        .status { font-size: 0.9rem; color: #475569; margin-top: 8px; }
+        .footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; color: #94a3b8; font-size: 0.85rem; }
+        .test-info { background: #f1f5f9; padding: 8px 14px; border-radius: 20px; }
+        .btn-group button:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🫧 冒泡排序可视化</h1>
+    <div class="subtitle">教学演示 · 单步执行 / 回看 · 标准自检</div>
+
+    <div class="control-panel">
+        <label>数组大小:
+            <input type="number" id="array-size" min="2" max="12" value="6">
+        </label>
+        <button id="btn-regenerate" style="background:#e2e8f0; border:1px solid #cbd5e1; padding:8px 14px; border-radius:8px; font-weight:600; cursor:pointer;">🔄 重新生成</button>
+        <div class="btn-group">
+            <button id="btn-prev">◀ 上一步</button>
+            <button id="btn-step">▶ 单步执行</button>
+            <button id="btn-next">下一步 ▶</button>
+        </div>
+    </div>
+
+    <div class="visualization" id="bars-container"></div>
+
+    <div class="explanation" id="explanation">
+        <strong>准备就绪</strong> — 点击“单步执行”开始冒泡排序，或调整数组大小后重新生成。
+    </div>
+    <div class="status" id="status">当前步骤: 0 / 0</div>
+
+    <div class="footer">
+        <span>冒泡排序 · 比较相邻元素，大数后移</span>
+        <span class="test-info">✅ 内置自检 (window.__verify__)</span>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- 核心算法 (纯函数) ----------
+        function bubbleSort(arr) {
+            const a = [...arr];
+            const n = a.length;
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    if (a[j] > a[j+1]) {
+                        [a[j], a[j+1]] = [a[j+1], a[j]];
+                    }
+                }
+            }
+            return a;
+        }
+
+        // ---------- 标准自检入口 ----------
+        window.__verify__ = function(input) {
+            // 输入: 数组, 返回排序后的数组 (确定性结果)
+            return bubbleSort(input);
+        };
+
+        // ---------- 测试用例 (与 __verify__ 返回结构完全一致) ----------
+        window.__TEST_CASES__ = [
+            { input: [5, 2, 9, 1, 5, 6], expected: [1, 2, 5, 5, 6, 9] },
+            { input: [3, 0, -2, 7, 4], expected: [-2, 0, 3, 4, 7] },
+            { input: [], expected: [] },                     // 边界: 空数组
+            { input: [42], expected: [42] },                 // 边界: 单元素
+            { input: [10, 10, 10], expected: [10, 10, 10] }  // 边界: 全部相等
+        ];
+
+        // ---------- 可视化状态 ----------
+        let currentArray = [];
+        let steps = [];           // 存储每一步的快照 { array, compareIndices, sortedIndices, description }
+        let currentStepIndex = -1;
+
+        // DOM 元素
+        const barsContainer = document.getElementById('bars-container');
+        const explanationDiv = document.getElementById('explanation');
+        const statusDiv = document.getElementById('status');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnStep = document.getElementById('btn-step');
+        const btnNext = document.getElementById('btn-next');
+        const btnRegenerate = document.getElementById('btn-regenerate');
+        const sizeInput = document.getElementById('array-size');
+
+        // ---------- 生成步骤 ----------
+        function generateSteps(arr) {
+            const a = [...arr];
+            const n = a.length;
+            const stepsArr = [];
+            // 初始状态
+            stepsArr.push({
+                array: [...a],
+                compare: [],
+                sorted: [],
+                desc: `初始数组: [${a.join(', ')}]`
+            });
+
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    // 比较步骤
+                    stepsArr.push({
+                        array: [...a],
+                        compare: [j, j+1],
+                        sorted: [],  // 尚未确定
+                        desc: `比较 a[${j}] = ${a[j]} 和 a[${j+1}] = ${a[j+1]}`
+                    });
+                    if (a[j] > a[j+1]) {
+                        // 交换
+                        [a[j], a[j+1]] = [a[j+1], a[j]];
+                        stepsArr.push({
+                            array: [...a],
+                            compare: [j, j+1],
+                            sorted: [],
+                            desc: `交换 → a[${j}] ↔ a[${j+1}] → [${a.join(', ')}]`
+                        });
+                    }
+                }
+                // 第 i 轮结束，最后一个元素已就位
+                stepsArr.push({
+                    array: [...a],
+                    compare: [],
+                    sorted: [n - i - 1],
+                    desc: `第 ${i+1} 轮完成，a[${n-i-1}] = ${a[n-i-1]} 已就位`
+                });
+            }
+            // 最后全部排序完成
+            stepsArr.push({
+                array: [...a],
+                compare: [],
+                sorted: Array.from({length: n}, (_, idx) => idx),
+                desc: `✅ 排序完成: [${a.join(', ')}]`
+            });
+            return stepsArr;
+        }
+
+        // ---------- 渲染步骤 ----------
+        function renderStep(index) {
+            if (index < 0 || index >= steps.length) return;
+            const step = steps[index];
+            currentStepIndex = index;
+
+            // 更新柱状图
+            const maxVal = Math.max(...step.array, 1);
+            const containerHeight = 200;
+            barsContainer.innerHTML = '';
+            step.array.forEach((value, idx) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                const height = Math.max(10, (value / maxVal) * containerHeight);
+                bar.style.height = height + 'px';
+                bar.textContent = value;
+                // 高亮
+                if (step.compare.includes(idx)) {
+                    bar.classList.add('compare');
+                } else if (step.sorted.includes(idx)) {
+                    bar.classList.add('sorted');
+                }
+                barsContainer.appendChild(bar);
+            });
+
+            // 更新讲解
+            explanationDiv.innerHTML = `<strong>步骤 ${index + 1}/${steps.length}:</strong> ${step.desc}`;
+            statusDiv.textContent = `当前步骤: ${index + 1} / ${steps.length}`;
+
+            // 按钮状态
+            btnPrev.disabled = (index === 0);
+            btnNext.disabled = (index === steps.length - 1);
+        }
+
+        // ---------- 重置并生成新数据 ----------
+        function resetWithArray(newArr) {
+            currentArray = [...newArr];
+            steps = generateSteps(currentArray);
+            currentStepIndex = 0;
+            renderStep(0);
+        }
+
+        function regenerateFromSize() {
+            let size = parseInt(sizeInput.value, 10);
+            if (isNaN(size) || size < 2) size = 2;
+            if (size > 12) size = 12;
+            sizeInput.value = size;
+            // 生成随机数组 (1~20)
+            const arr = Array.from({length: size}, () => Math.floor(Math.random() * 18) + 2);
+            resetWithArray(arr);
+        }
+
+        // ---------- 事件绑定 ----------
+        btnStep.addEventListener('click', function() {
+            if (steps.length === 0) return;
+            if (currentStepIndex < steps.length - 1) {
+                renderStep(currentStepIndex + 1);
+            } else {
+                // 已经到最后，重新从第一步开始? 这里保持不动，但可提示
+                // 为了教学，如果到最后再点单步，从头开始
+                renderStep(0);
+            }
+        });
+
+        btnPrev.addEventListener('click', function() {
+            if (currentStepIndex > 0) {
+                renderStep(currentStepIndex - 1);
+            }
+        });
+
+        btnNext.addEventListener('click', function() {
+            if (currentStepIndex < steps.length - 1) {
+                renderStep(currentStepIndex + 1);
+            }
+        });
+
+        btnRegenerate.addEventListener('click', regenerateFromSize);
+
+        sizeInput.addEventListener('change', function() {
+            let val = parseInt(sizeInput.value, 10);
+            if (isNaN(val) || val < 2) val = 2;
+            if (val > 12) val = 12;
+            sizeInput.value = val;
+            regenerateFromSize();
+        });
+
+        // ---------- 初始化 ----------
+        // 默认数组 [6, 3, 8, 1, 9, 4]
+        const defaultArr = [6, 3, 8, 1, 9, 4];
+        sizeInput.value = defaultArr.length;
+        resetWithArray(defaultArripse);
+
+        // 额外: 确保 __verify__ 和 __TEST_CASES__ 可被外部访问 (已定义)
+        // 手动验证一下测试用例 (控制台可调)
+        console.log('自检用例: ', window.__TEST_CASES__.map(tc => 
+            JSON.stringify(window.__verify__(tc.input)) === JSON.stringify(tc.expected) ? '✅' : '❌'
+        ).join(' '));
+    })();
+</script>
+</body>
+</html>

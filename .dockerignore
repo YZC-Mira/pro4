@@ -1,0 +1,21 @@
+# 构建上下文排除（context = 项目根目录）
+frontend/node_modules
+frontend/.npm-cache
+frontend/dist
+backend/.venv
+backend/data
+backend/pages
+backend/__pycache__
+**/__pycache__
+*.db
+*.pyc
+.git
+.gitignore
+design
+.codeartsdoer
+README.md
+开发任务清单.md
+产品需求文档.md
+技术选型文档.md
+test_*.ps1
+qidong.ps1
